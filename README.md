@@ -40,23 +40,23 @@ That's the goal you're shooting at. Everything else is build speed.
 
 ## Install
 
-```bash
-# Claude Code (default)
-bash install.sh
-
-# Claude Code + OpenClaw
-bash install.sh --openclaw
-
-# All runtimes
-bash install.sh --all
-```
-
-Manual install:
+Pick your runtime — one command each. `install.sh` creates the venv in place; no hardcoded paths.
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r scripts/requirements.txt
+# Claude Code
+git clone https://github.com/mturac/product-init ~/.claude/skills/product-init
+bash ~/.claude/skills/product-init/install.sh
+
+# Codex CLI
+git clone https://github.com/mturac/product-init ~/.codex/skills/product-init
+bash ~/.codex/skills/product-init/install.sh
+
+# OpenClaw / Hermes
+git clone https://github.com/mturac/product-init ~/.openclaw/skills/product-init
+bash ~/.openclaw/skills/product-init/install.sh
 ```
+
+The skill auto-detects which runtime you're on. No env vars needed after install.
 
 ---
 
@@ -79,13 +79,13 @@ Every audit accepts `--project-dir` and `--json`. JSON output: `{ findings: [...
 
 ## Runtime support
 
-| Runtime | Adapter | Setup |
-|---------|---------|-------|
-| Claude Code | `runtime/claude-code.md` | default |
-| Codex CLI | `runtime/codex.md` | `export PRODUCT_INIT_SKILL_DIR=~/.claude/skills/product-init` |
-| OpenClaw + Hermes | `runtime/openclaw.md` | `bash install.sh --openclaw` |
+| Runtime | Adapter | Install dir |
+|---------|---------|-------------|
+| Claude Code | `runtime/claude-code.md` | `~/.claude/skills/product-init` |
+| Codex CLI | `runtime/codex.md` | `~/.codex/skills/product-init` |
+| OpenClaw + Hermes | `runtime/openclaw.md` | `~/.openclaw/skills/product-init` |
 
-Orchestrator auto-detects: `$PRODUCT_INIT_SKILL_DIR` → `~/.openclaw/skills/product-init/` → `~/.claude/skills/product-init/`.
+Orchestrator auto-detects path: `$PRODUCT_INIT_SKILL_DIR` → `~/.codex/` → `~/.openclaw/` → `~/.claude/`.
 
 ---
 

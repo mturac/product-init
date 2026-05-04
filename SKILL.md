@@ -1,7 +1,23 @@
 ---
 name: product-init
-description: AI-first turnkey product delivery skill. When a user describes a new product idea, Claude DELIVERS the product end-to-end through 9 hard-gated stages — writes the constitution, generates source code (directly or via builder delegation), writes tests, configures CI, deploys preview URLs, drafts UAT scripts, and produces the handoff package. The user only makes judgment calls and walks the live URL.
+description: AI-first turnkey product delivery. One command, 9 hard-gated stages, a shipped product at the end. Validates the problem before writing a single line of code. Works on Claude Code, Codex CLI, and OpenClaw/Hermes.
 version: 2.1.0
+risk: safe
+source: community
+author: mturac
+date_added: "2026-05-04"
+tags:
+  - product-management
+  - developer-tools
+  - ai
+  - shipping
+  - validation
+  - pmf
+tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
 ---
 
 # product-init — AI-First Operating Manual
@@ -26,12 +42,24 @@ This file is **instructions for Claude**, not for the human user. The human neve
 
 You are running this skill **conversationally**. The user does not see audit script output unless you choose to show it. You translate everything.
 
+**Resolve skill dir first** (before any script call):
+```bash
+# auto-detect — works on Claude Code, Codex CLI, OpenClaw, Hermes
+SKILL_DIR="${PRODUCT_INIT_SKILL_DIR:-}"
+if [ -z "$SKILL_DIR" ]; then
+  for d in ~/.codex/skills/product-init ~/.openclaw/skills/product-init ~/.claude/skills/product-init; do
+    [ -d "$d" ] && SKILL_DIR="$d" && break
+  done
+fi
+```
+Use `$SKILL_DIR` for all subsequent references. If none found, tell the user to run `bash install.sh` first.
+
 **You** (Claude) do the following automatically, without asking:
-- Use the skill-local venv: `~/.claude/skills/product-init/.venv/bin/python` for all script invocations. If `.venv/` is missing, run `uv venv ~/.claude/skills/product-init/.venv && uv pip install --python ~/.claude/skills/product-init/.venv/bin/python -r ~/.claude/skills/product-init/scripts/requirements.txt`
+- Use the skill-local venv: `$SKILL_DIR/.venv/bin/python` for all script invocations. If `.venv/` is missing, run `bash $SKILL_DIR/install.sh` (creates venv in place, works on all runtimes)
 - `mkdir` the project directory if it does not exist
 - `cp` template files into the project repo
 - `git init` if the repo is not under version control
-- Run `python3 ~/.claude/skills/product-init/scripts/orchestrator.py --project-dir <path> audit` and parse the JSON
+- Run `python3 $SKILL_DIR/scripts/orchestrator.py --project-dir <path> audit` and parse the JSON
 - Run `filter_task.py` against any task the user proposes during the session
 - Write PRODUCT.md, SPEC.md, PLAN.md, TASKS.md, COMPETITIVE_BENCHMARK.md, DEBT.md based on the conversation
 - **Generate source code** for the golden path either directly (Write tool) or by delegating to free builders (codex/mistral-large/alibaba/big-pickle via Agent or `*:task` skills)
@@ -91,7 +119,7 @@ After the user answers, you write all 5 constitution files in one go and show:
 
 After committing the constitution, run:
 ```bash
-python3 ~/.claude/skills/product-init/scripts/orchestrator.py --project-dir <path> audit --json
+python3 $SKILL_DIR/scripts/orchestrator.py --project-dir <path> audit --json
 ```
 
 Parse the JSON. **Do not paste raw audit output to the user.** Translate:
@@ -236,14 +264,17 @@ This skill runs on Claude Code, Codex CLI, and OpenClaw. Core audit scripts (`sc
 
 | Runtime | Adapter | Install |
 |---------|---------|---------|
-| Claude Code | `runtime/claude-code.md` | default — no action needed |
-| Codex CLI | `runtime/codex.md` | `export PRODUCT_INIT_SKILL_DIR=~/.claude/skills/product-init` |
-| OpenClaw + Hermes | `runtime/openclaw.md` | `bash install.sh --openclaw` |
+| Claude Code | `runtime/claude-code.md` | `git clone https://github.com/mturac/product-init ~/.claude/skills/product-init && bash ~/.claude/skills/product-init/install.sh` |
+| Codex CLI | `runtime/codex.md` | `git clone https://github.com/mturac/product-init ~/.codex/skills/product-init && bash ~/.codex/skills/product-init/install.sh` |
+| OpenClaw + Hermes | `runtime/openclaw.md` | `git clone https://github.com/mturac/product-init ~/.openclaw/skills/product-init && bash ~/.openclaw/skills/product-init/install.sh` |
 
 **Path resolution** (orchestrator auto-detects in this order):
-1. `$PRODUCT_INIT_SKILL_DIR` env var
-2. `~/.openclaw/skills/product-init/`
-3. `~/.claude/skills/product-init/`
+1. `$PRODUCT_INIT_SKILL_DIR` env var (override)
+2. `~/.codex/skills/product-init/`
+3. `~/.openclaw/skills/product-init/`
+4. `~/.claude/skills/product-init/`
+
+The `install.sh` creates the venv at `$SKILL_DIR/.venv/` in place — no hardcoded paths.
 
 When operating on a non-Claude-Code runtime, read the relevant `runtime/*.md` adapter before delegating to builders — it specifies the correct builder dispatch commands for that runtime.
 
