@@ -1,23 +1,21 @@
 ---
 name: product-init
 description: AI-first turnkey product delivery. One command, 9 hard-gated stages, a shipped product at the end. Validates the problem before writing a single line of code. Works on Claude Code, Codex CLI, and OpenClaw/Hermes.
-version: 2.1.0
-risk: safe
-source: community
-author: mturac
-date_added: "2026-05-04"
-tags:
-  - product-management
-  - developer-tools
-  - ai
-  - shipping
-  - validation
-  - pmf
-tools:
+allowed-tools:
   - Bash
   - Read
   - Write
   - Edit
+metadata:
+  version: "2.1.0"
+  author: mturac
+  license: MIT
+  tags:
+    - product-management
+    - developer-tools
+    - ai
+    - shipping
+    - pmf
 ---
 
 # product-init — AI-First Operating Manual
