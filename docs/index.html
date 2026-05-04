@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>product-init — AI sets the goal. This makes sure you're shooting at the right one.</title>
+  <meta name="description" content="9 hard gates between your AI and your deploy. CRITICAL findings block the pipeline. No --skip flag." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e0e;
+      --surface: #1a1a1a;
+      --border: #2a2a2a;
+      --accent: #0066ff;
+      --cyan: #00d4ff;
+      --text: #f0f0f0;
+      --muted: #888;
+      --green: #00e676;
+      --red: #ff1744;
+      --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(14,14,14,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      font-size: 0.8rem !important;
+      font-weight: 600;
+      transition: background 0.15s !important;
+    }
+    .nav-cta:hover { background: #0052cc !important; color: #fff !important; }
+
+    /* HERO */
+    .hero {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--cyan);
+    }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+    .hero-sub strong { color: var(--text); }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: #0052cc; transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-weight: 500;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+    /* TERMINAL */
+    .terminal-wrap {
+      max-width: 680px;
+      margin: 4rem auto 0;
+      padding: 0 2rem;
+    }
+    .terminal {
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .terminal-bar {
+      background: #1e1e1e;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .terminal-body {
+      padding: 1.25rem 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+    .t-prompt { color: var(--accent); }
+    .t-cmd { color: var(--text); }
+    .t-gate { color: var(--muted); }
+    .t-pass { color: var(--green); }
+    .t-fail { color: var(--red); }
+    .t-cyan { color: var(--cyan); }
+    .t-dim { color: #555; }
+
+    /* STAT BAR */
+    .stat-bar {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      padding: 3.5rem 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-top: 5rem;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--cyan);
+      font-variant-numeric: tabular-nums;
+      display: block;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* POSITIONING SECTION */
+    .positioning {
+      max-width: 760px;
+      margin: 5rem auto;
+      padding: 0 2rem;
+      text-align: center;
+    }
+    .positioning blockquote {
+      font-size: 1.4rem;
+      line-height: 1.5;
+      font-weight: 500;
+      color: var(--text);
+      border: none;
+      margin-bottom: 1rem;
+    }
+    .positioning blockquote em {
+      font-style: normal;
+      color: var(--cyan);
+    }
+    .positioning p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* GATES */
+    .gates-section {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+    .gates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .gate-card {
+      background: var(--surface);
+      padding: 1.25rem 1.5rem;
+      transition: background 0.15s;
+    }
+    .gate-card:hover { background: #1f1f1f; }
+    .gate-num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .gate-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+    .gate-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+    .gate-card.gate-critical .gate-name { color: var(--cyan); }
+
+    /* COMPARE */
+    .compare-section {
+      max-width: 680px;
+      margin: 0 auto 5rem;
+      padding: 0 2rem;
+    }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .compare-table th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .compare-table td:first-child { color: var(--text); font-weight: 500; }
+    .compare-table .yes { color: var(--green); }
+    .compare-table .no { color: #555; }
+    .compare-table tr.highlight td { color: var(--text); background: rgba(0,102,255,0.05); }
+    .compare-table tr.highlight td:first-child { color: var(--cyan); }
+
+    /* RUNTIMES */
+    .runtimes {
+      max-width: 680px;
+      margin: 0 auto 5rem;
+      padding: 0 2rem;
+    }
+    .runtime-list {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .runtime-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .runtime-chip strong { display: block; color: var(--text); font-size: 0.9rem; margin-bottom: 0.2rem; }
+
+    /* INSTALL */
+    .install-section {
+      max-width: 580px;
+      margin: 0 auto 5rem;
+      padding: 0 2rem;
+      text-align: center;
+    }
+    .code-block {
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--cyan);
+      text-align: left;
+      margin-top: 1.5rem;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #555;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .stat-bar { gap: 2rem; }
+      .stat-num { font-size: 2rem; }
+      nav { padding: 1rem; }
+      .nav-links { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">/product-init</a>
+  <div class="nav-links">
+    <a href="#gates">Gates</a>
+    <a href="#install">Install</a>
+    <a href="https://github.com/mturac/product-init" target="_blank">GitHub</a>
+    <a class="nav-cta" href="https://github.com/mturac/product-init" target="_blank">Get started →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Claude Code Skill · Open Source</div>
+  <h1>AI sets the goal.<br><em>This makes sure you're<br>shooting at the right one.</em></h1>
+  <p class="hero-sub">
+    Codex ships <code style="font-family:var(--font-mono);color:var(--cyan);font-size:0.9em">/goal</code>.
+    Every AI tool now moves faster.<br>
+    <strong>43% of startups still die from the same cause: wrong product.</strong><br>
+    9 hard gates. CRITICAL findings block the pipeline. No <code style="font-family:var(--font-mono);font-size:0.85em">--skip</code> flag.
+  </p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="https://github.com/mturac/product-init" target="_blank">View on GitHub</a>
+    <a class="btn-ghost" href="#gates">See the 9 gates</a>
+  </div>
+</section>
+
+<div class="terminal-wrap">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="dot dot-r"></span>
+      <span class="dot dot-y"></span>
+      <span class="dot dot-g"></span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-prompt">❯</span> <span class="t-cmd">/product-init "build an HR assessment tool"</span></div>
+      <div class="t-dim">→ 3 questions. AI drafts the rest.</div>
+      <br>
+      <div><span class="t-gate">Gate 1</span> <span class="t-cyan">Discovery Constitution</span> <span class="t-dim">running audit...</span></div>
+      <div class="t-pass">  ✓ JTBD defined</div>
+      <div class="t-pass">  ✓ Four-risk model: feasibility, viability, usability, business</div>
+      <div class="t-pass">  ✓ Kill criteria documented</div>
+      <div class="t-pass">  Gate 1 passed → Gate 2 unlocked</div>
+      <br>
+      <div><span class="t-gate">Gate 5</span> <span class="t-cyan">QA</span></div>
+      <div class="t-pass">  ✓ unit       42/42</div>
+      <div class="t-pass">  ✓ integration 18/18</div>
+      <div class="t-pass">  ✓ e2e         7/7</div>
+      <br>
+      <div><span class="t-gate">Gate 7</span> <span class="t-cyan">Deploy</span></div>
+      <div class="t-pass">  ✓ demorpoject.vercel.app → HTTP 200</div>
+      <div class="t-pass">  ✓ smoke job passed</div>
+      <br>
+      <div class="t-pass">CRITICAL: 0 · HIGH: 0 · All gates: green</div>
+    </div>
+  </div>
+</div>
+
+<div class="stat-bar">
+  <div class="stat">
+    <span class="stat-num">9</span>
+    <div class="stat-label">hard gates</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num">43%</span>
+    <div class="stat-label">of startups die from no PMF<br><span style="font-size:0.7rem">(CB Insights 2024)</span></div>
+  </div>
+  <div class="stat">
+    <span class="stat-num">0</span>
+    <div class="stat-label">--skip flags</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num">3</span>
+    <div class="stat-label">runtimes supported</div>
+  </div>
+</div>
+
+<div class="positioning">
+  <blockquote>"Vibe-coding without a product spec isn't moving fast.<br>It's building <em>the wrong thing</em> at the speed of AI."</blockquote>
+  <p>Gate 1 is the one that matters most. It asks: who gets fired if this fails, what job are they hiring it for, and what does failure look like in production? That's the goal you're shooting at. Everything else is build speed.</p>
+</div>
+
+<section class="gates-section" id="gates">
+  <div class="section-label">The 9 Gates</div>
+  <div class="gates-grid">
+    <div class="gate-card gate-critical">
+      <div class="gate-num">Gate 1</div>
+      <div class="gate-name">Discovery Constitution</div>
+      <div class="gate-desc">JTBD + Cagan four-risk model. Blocks Gate 2. No override.</div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 2</div>
+      <div class="gate-name">Statement of Work</div>
+      <div class="gate-desc">Shape Up appetite. Amazon PR-FAQ format. Every metric measurable.</div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 3</div>
+      <div class="gate-name">Design</div>
+      <div class="gate-desc">Every screen maps to a job-to-be-done from Gate 1.</div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 4</div>
+      <div class="gate-name">Build</div>
+      <div class="gate-desc">Commit-to-AC traceability. No orphan TODOs.</div>
+    </div>
+    <div class="gate-card gate-critical">
+      <div class="gate-num">Gate 5</div>
+      <div class="gate-name">QA</div>
+      <div class="gate-desc">Unit + integration + E2E — all three, all green. Not "mostly."</div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 6</div>
+      <div class="gate-name">UAT</div>
+      <div class="gate-desc">Real human signs off on a real URL. sha256-tagged report.</div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 7</div>
+      <div class="gate-name">Deploy</div>
+      <div class="gate-desc">HTTP 200 to prod URL. Smoke job. Rollback drill documented.</div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 8</div>
+      <div class="gate-name">Handoff</div>
+      <div class="gate-desc">ADRs + runbook + DEBT.md. A contract, not a README.</div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 9</div>
+      <div class="gate-name">Warranty</div>
+      <div class="gate-desc">72h monitoring window. Error rate, latency, uptime. All three.</div>
+    </div>
+  </div>
+</section>
+
+<section class="compare-section">
+  <div class="section-label">Different category</div>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Tool</th>
+        <th>What you get</th>
+        <th>PMF validation</th>
+        <th>Gate system</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>v0</td>
+        <td>UI components</td>
+        <td class="no">—</td>
+        <td class="no">—</td>
+      </tr>
+      <tr>
+        <td>Bolt</td>
+        <td>Full-stack app</td>
+        <td class="no">—</td>
+        <td class="no">—</td>
+      </tr>
+      <tr>
+        <td>Lovable</td>
+        <td>Polished UI</td>
+        <td class="no">—</td>
+        <td class="no">—</td>
+      </tr>
+      <tr>
+        <td>Cursor / Codex</td>
+        <td>AI code editor</td>
+        <td class="no">—</td>
+        <td class="no">—</td>
+      </tr>
+      <tr class="highlight">
+        <td>product-init</td>
+        <td>The thing before all of those</td>
+        <td class="yes">Gate 1</td>
+        <td class="yes">9 gates</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="runtimes" id="install">
+  <div class="section-label">Runtime support</div>
+  <div class="runtime-list">
+    <div class="runtime-chip"><strong>Claude Code</strong>default</div>
+    <div class="runtime-chip"><strong>Codex CLI</strong>$PRODUCT_INIT_SKILL_DIR</div>
+    <div class="runtime-chip"><strong>OpenClaw + Hermes</strong>bash install.sh --openclaw</div>
+  </div>
+</section>
+
+<section class="install-section">
+  <div class="section-label">Install</div>
+  <div class="code-block">
+    <div>$ bash install.sh</div>
+    <br>
+    <div style="color:#555"># With OpenClaw</div>
+    <div>$ bash install.sh --openclaw</div>
+    <br>
+    <div style="color:#555"># All runtimes</div>
+    <div>$ bash install.sh --all</div>
+  </div>
+  <div style="margin-top:2.5rem;">
+    <a class="btn-primary" href="https://github.com/mturac/product-init" target="_blank">View on GitHub →</a>
+  </div>
+</section>
+
+<footer>
+  <p>
+    Open source · Built on <a href="https://github.com/mturac/product-init">github.com/mturac/product-init</a>
+    · Research: CB Insights · Christensen JTBD · Basecamp Shape Up · Amazon PR-FAQ · Cagan four-risk
+  </p>
+</footer>
+
+</body>
+</html>

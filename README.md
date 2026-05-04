@@ -1,39 +1,142 @@
 # product-init
 
-AI-first turnkey product delivery skill. It enforces an 8-gate pipeline
-(Discovery -> SoW -> Build -> Real Wiring -> QA -> Deploy -> UAT/Warranty -> Handoff)
-through a set of audit scripts under `scripts/`. Each audit returns structured
-findings (severity, gate, check, evidence, fix) and a non-zero exit code when
-any HIGH or CRITICAL issue is present.
+**AI sets the goal. product-init makes sure you're shooting at the right one.**
+
+> "Vibe-coding without a product spec isn't moving fast. It's building the wrong thing at the speed of AI."
+
+Codex ships `/goal`. Cursor ships `/build`. Every AI tool now moves faster.  
+43% of startups still die from the same cause: wrong product.
+
+product-init is the gate before the gate — 9 hard stops between your idea and your deploy, each blocked by a Python audit script with real pass/fail criteria. CRITICAL findings stop the pipeline. No `--skip` flag.
+
+Works on Claude Code, Codex CLI, and OpenClaw/Hermes.
+
+---
+
+## How it works
+
+```
+/product-init "build an HR assessment tool"
+```
+
+Three questions. AI drafts the rest. 9 gates run in sequence.
+
+```
+Gate 1  Discovery Constitution   JTBD + four-risk model
+Gate 2  Statement of Work        Shape Up appetite + PR-FAQ
+Gate 3  Design                   Every screen maps to a job from Gate 1
+Gate 4  Build                    Commit-to-AC, no orphan TODOs
+Gate 5  QA                       Unit + integration + E2E — all green
+Gate 6  UAT                      Real human signs off on real URL
+Gate 7  Deploy                   HTTP 200 to prod, smoke job, rollback drill
+Gate 8  Handoff                  ADRs + runbook + DEBT.md — a contract, not a README
+Gate 9  Warranty                 72h monitoring window: error rate, latency, uptime
+```
+
+Gate 1 is the one that matters most. It asks: *who gets fired if this fails, what job are they hiring it for, and what does failure look like in production?*  
+That's the goal you're shooting at. Everything else is build speed.
+
+---
 
 ## Install
 
-The skill ships with a vendored virtualenv:
+```bash
+# Claude Code (default)
+bash install.sh
 
+# Claude Code + OpenClaw
+bash install.sh --openclaw
+
+# All runtimes
+bash install.sh --all
 ```
+
+Manual install:
+
+```bash
 python3 -m venv .venv
 .venv/bin/pip install -r scripts/requirements.txt
 ```
 
-That is the venv the orchestrator already uses (`.venv/bin/python3`). No
-global Python state is mutated.
+---
 
-## Run an audit
+## Usage
 
+```bash
+# Bootstrap a new project
+python3 scripts/orchestrator.py --project-dir /path/to/project init "your idea"
+
+# Run a specific gate
+python3 scripts/orchestrator.py --project-dir /path/to/project gate 1
+
+# Run all audits
+python3 scripts/orchestrator.py --project-dir /path/to/project audit --json
 ```
-.venv/bin/python3 -B scripts/audit_constitution.py --project-dir /path/to/project
-```
 
-Every audit accepts `--project-dir <dir>` and `--json`. `audit_qa.py` is an
-aggregator that runs all eight Gate 5 sub-audits and merges their findings.
+Every audit accepts `--project-dir` and `--json`. JSON output: `{ findings: [...], exit_code: 0|1 }`.
 
-## Auto-trigger
+---
 
-The keywords and phrases that auto-trigger this skill are documented in
-`SKILL.md` (the canonical entry point). Look there for routing details.
+## Runtime support
 
-## Dogfood CI
+| Runtime | Adapter | Setup |
+|---------|---------|-------|
+| Claude Code | `runtime/claude-code.md` | default |
+| Codex CLI | `runtime/codex.md` | `export PRODUCT_INIT_SKILL_DIR=~/.claude/skills/product-init` |
+| OpenClaw + Hermes | `runtime/openclaw.md` | `bash install.sh --openclaw` |
 
-`.github/workflows/dogfood.yml` materializes a known-good fixture under
-`/tmp/fixture` and asserts that gate1 and gate2 audits exit 0, plus a
-syntax check across every `scripts/*.py`.
+Orchestrator auto-detects: `$PRODUCT_INIT_SKILL_DIR` → `~/.openclaw/skills/product-init/` → `~/.claude/skills/product-init/`.
+
+---
+
+## What ships at the end
+
+- `PRODUCT.md` — golden path, persona, outcome metric, kill criteria
+- `SPEC.md` — scope, acceptance criteria
+- `PLAN.md` — Shape Up pitch, appetite, deferred list
+- `TASKS.md` — golden path tasks only (filter blocks scope creep)
+- `COMPETITIVE_BENCHMARK.md` — v0/Bolt/Lovable/Railway targets
+- `DEBT.md` — every TODO/FIXME named and owned
+- `UAT_REPORT.md` — signed off, sha256-tagged
+- `HANDOFF.md` — ADRs, runbook, rollback, credentials vault link
+- `.github/workflows/ci.yml` — audit jobs as required checks
+
+---
+
+## Demo
+
+HR assessment tool built in one session with product-init:
+- Editorial landing page: "Hire on evidence, not on a feeling."
+- Dark cinematic interview room — live AI sessions
+- Dashboard with scored candidates
+- PDF reports across 4 dimensions
+
+Live: https://demorpoject.vercel.app
+
+---
+
+## CI
+
+`.github/workflows/dogfood.yml` — self-audits on every push:
+- Gate 1 + Gate 2 must exit 0 on known-good fixture
+- Orchestrator `init`, `audit`, `gate` subcommands tested
+- Runtime adapters frontmatter validated
+- `install.sh` executable check
+- Python syntax check on all 23 scripts
+- `$PRODUCT_INIT_SKILL_DIR` env var override verified
+
+---
+
+## Research basis
+
+| Source | Applied at |
+|--------|-----------|
+| CB Insights 2024 (43% PMF failure) | Gate 1 hard block |
+| Christensen JTBD | Gate 1 Q2 |
+| Cagan four-risk model | Gate 1 Q7 |
+| Basecamp Shape Up | Gate 2 appetite + scope |
+| Amazon PR-FAQ | Gate 2 user narrative |
+| Torres Continuous Discovery | Gate 1 Q13 |
+| Ries Lean Startup | Kill criteria + BML loop |
+
+Full citations: `references/research-evidence.md`
