@@ -40,23 +40,11 @@ That's the goal you're shooting at. Everything else is build speed.
 
 ## Install
 
-Pick your runtime — one command each. `install.sh` creates the venv in place; no hardcoded paths.
-
 ```bash
-# Claude Code
-git clone https://github.com/mturac/product-init ~/.claude/skills/product-init
-bash ~/.claude/skills/product-init/install.sh
-
-# Codex CLI
-git clone https://github.com/mturac/product-init ~/.codex/skills/product-init
-bash ~/.codex/skills/product-init/install.sh
-
-# OpenClaw / Hermes
-git clone https://github.com/mturac/product-init ~/.openclaw/skills/product-init
-bash ~/.openclaw/skills/product-init/install.sh
+curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash
 ```
 
-The skill auto-detects which runtime you're on. No env vars needed after install.
+That's it. The script detects which AI tools you have installed (Claude Code, Codex CLI, OpenClaw) and installs there automatically. Works on all of them at once if you have multiple.
 
 ---
 
