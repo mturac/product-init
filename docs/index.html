@@ -537,22 +537,17 @@
 <section class="runtimes" id="install">
   <div class="section-label">Runtime support</div>
   <div class="runtime-list">
-    <div class="runtime-chip"><strong>Claude Code</strong>default</div>
-    <div class="runtime-chip"><strong>Codex CLI</strong>$PRODUCT_INIT_SKILL_DIR</div>
-    <div class="runtime-chip"><strong>OpenClaw + Hermes</strong>bash install.sh --openclaw</div>
+    <div class="runtime-chip"><strong>Claude Code</strong>auto-detected</div>
+    <div class="runtime-chip"><strong>Codex CLI</strong>auto-detected</div>
+    <div class="runtime-chip"><strong>OpenClaw + Hermes</strong>auto-detected</div>
   </div>
 </section>
 
 <section class="install-section">
   <div class="section-label">Install</div>
   <div class="code-block">
-    <div>$ bash install.sh</div>
-    <br>
-    <div style="color:#555"># With OpenClaw</div>
-    <div>$ bash install.sh --openclaw</div>
-    <br>
-    <div style="color:#555"># All runtimes</div>
-    <div>$ bash install.sh --all</div>
+    <div style="color:#555"># Works on Claude Code, Codex CLI, OpenClaw — auto-detected</div>
+    <div>$ curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</div>
   </div>
   <div style="margin-top:2.5rem;">
     <a class="btn-primary" href="https://github.com/mturac/product-init" target="_blank">View on GitHub →</a>
