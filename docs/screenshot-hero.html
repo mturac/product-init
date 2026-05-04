@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #080810;
+    font-family: -apple-system, 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* glow blobs */
+  .blob1 {
+    position:absolute; width:600px; height:600px; border-radius:50%;
+    background: radial-gradient(circle, rgba(0,102,255,0.08) 0%, transparent 70%);
+    top:-100px; left:-100px; pointer-events:none;
+  }
+  .blob2 {
+    position:absolute; width:500px; height:500px; border-radius:50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%);
+    bottom:-80px; right:-80px; pointer-events:none;
+  }
+
+  .card {
+    width: 900px;
+    background: linear-gradient(135deg, #0d0d18 0%, #0a0a12 100%);
+    border: 1px solid #1a1a2e;
+    border-radius: 20px;
+    padding: 56px 64px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 0 0 1px rgba(0,102,255,.05), 0 40px 80px rgba(0,0,0,.6);
+  }
+
+  .eyebrow {
+    font-family: 'SF Mono', monospace;
+    font-size: 11px;
+    color: #0066ff;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 20px; height: 1px;
+    background: #0066ff;
+  }
+
+  h1 {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+    color: #f0f0fa;
+    margin-bottom: 16px;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, #0066ff, #00d4ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .sub {
+    font-size: 17px;
+    color: #555;
+    max-width: 540px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+  .sub strong { color: #888; }
+
+  /* 9-gate strip */
+  .gates {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .gate-chip {
+    background: #111120;
+    border: 1px solid #1e1e30;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: 'SF Mono', monospace;
+    font-size: 11px;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .gate-chip .num { color: #0066ff; }
+  .gate-chip .check { color: #00e676; font-size: 10px; }
+
+  .cta-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .btn {
+    background: #0066ff;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 9px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 0 30px rgba(0,102,255,.25);
+  }
+  .stat-row {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    margin-left: 8px;
+  }
+  .stat { text-align:center; }
+  .stat-n { font-size: 22px; font-weight: 700; color: #00d4ff; font-variant-numeric: tabular-nums; }
+  .stat-l { font-size: 10px; color: #333; margin-top: 2px; }
+
+  .divider { width: 1px; height: 36px; background: #1e1e30; }
+</style>
+</head>
+<body>
+<div class="blob1"></div>
+<div class="blob2"></div>
+
+<div class="card">
+  <div class="eyebrow">Claude Code Skill · Open Source</div>
+  <h1>AI sets the goal.<br><em>Shoot at the right one.</em></h1>
+  <p class="sub">
+    Codex ships <strong>/goal</strong>. Every AI tool now moves faster.<br>
+    43% of startups still die from the same cause: <strong>wrong product.</strong><br>
+    9 hard gates. CRITICAL findings block the pipeline. No <strong>--skip</strong> flag.
+  </p>
+
+  <div class="gates">
+    <div class="gate-chip"><span class="num">1</span> Discovery <span class="check">✓</span></div>
+    <div class="gate-chip"><span class="num">2</span> SoW <span class="check">✓</span></div>
+    <div class="gate-chip"><span class="num">3</span> Design <span class="check">✓</span></div>
+    <div class="gate-chip"><span class="num">4</span> Build <span class="check">✓</span></div>
+    <div class="gate-chip"><span class="num">5</span> QA <span class="check">✓</span></div>
+    <div class="gate-chip"><span class="num">6</span> UAT <span class="check">✓</span></div>
+    <div class="gate-chip"><span class="num">7</span> Deploy <span class="check">✓</span></div>
+    <div class="gate-chip"><span class="num">8</span> Handoff <span class="check">✓</span></div>
+    <div class="gate-chip"><span class="num">9</span> Warranty <span class="check">✓</span></div>
+  </div>
+
+  <div class="cta-row">
+    <a class="btn" href="#">github.com/mturac/product-init</a>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-n">43%</div><div class="stat-l">PMF failure rate</div></div>
+      <div class="divider"></div>
+      <div class="stat"><div class="stat-n">0</div><div class="stat-l">--skip flags</div></div>
+      <div class="divider"></div>
+      <div class="stat"><div class="stat-n">3</div><div class="stat-l">runtimes</div></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

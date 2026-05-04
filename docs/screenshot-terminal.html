@@ -3,62 +3,159 @@
 <head>
 <meta charset="UTF-8"/>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#0e0e0e; display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:'SF Mono','Fira Code',monospace; }
-  .window { width:780px; border-radius:14px; overflow:hidden; box-shadow:0 40px 80px rgba(0,0,0,0.8); border:1px solid #2a2a2a; }
-  .bar { background:#1e1e1e; padding:14px 18px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #2a2a2a; }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: radial-gradient(ellipse at 30% 50%, #050d1a 0%, #080808 60%);
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh; font-family:'SF Mono','Fira Code','Cascadia Code',monospace;
+    padding: 48px;
+  }
+  .wrap {
+    width: 860px;
+    filter: drop-shadow(0 0 60px rgba(0,102,255,0.18)) drop-shadow(0 30px 60px rgba(0,0,0,0.8));
+  }
+  .window {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #1e2a3a;
+    background: #0a0a0f;
+  }
+  .bar {
+    background: linear-gradient(180deg, #1a1e2e 0%, #141520 100%);
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #1e2030;
+  }
   .dot { width:13px; height:13px; border-radius:50%; }
   .r{background:#ff5f57} .y{background:#febc2e} .g{background:#28c840}
-  .title { color:#555; font-size:12px; margin-left:auto; margin-right:auto; }
-  .body { background:#0a0a0a; padding:28px 32px; font-size:13.5px; line-height:2; }
+  .title { color:#3a4060; font-size:12px; margin:0 auto; letter-spacing:.03em; }
+
+  /* Gate progress bar */
+  .gate-progress {
+    background: #0d0d14;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #151525;
+  }
+  .gate-pip {
+    width: 28px; height: 6px; border-radius: 3px;
+    background: #1a1a2a;
+    transition: background .3s;
+  }
+  .gate-pip.done { background: #00e676; }
+  .gate-pip.active { background: #0066ff; box-shadow: 0 0 8px rgba(0,102,255,.6); }
+  .gate-label { font-size:10px; color:#333; margin-left:8px; letter-spacing:.08em; }
+  .gate-label span { color:#0066ff; }
+
+  .body { padding: 28px 32px 32px; font-size:13px; line-height:1.9; }
+
   .prompt { color:#0066ff; }
-  .cmd { color:#f0f0f0; }
-  .dim { color:#444; }
-  .gate { color:#888; }
-  .cyan { color:#00d4ff; }
+  .cmd { color:#e0e0f0; font-weight:500; }
+  .dim { color:#333; font-size:12px; }
+  .gate-header { color:#445; margin-top:4px; }
+  .cyan { color:#00d4ff; font-weight:600; }
   .green { color:#00e676; }
-  .red { color:#ff1744; }
+  .white { color:#dde; }
   .bold { font-weight:700; }
-  .spacer { height:10px; }
+  .spacer { height:8px; }
+  .big-spacer { height:16px; }
+
+  .gate-block {
+    border-left: 2px solid #1a2030;
+    padding-left: 14px;
+    margin-left: 4px;
+    margin-bottom: 16px;
+  }
+  .gate-block.active-block { border-left-color: #0066ff22; }
+
+  .success-banner {
+    margin-top: 20px;
+    background: linear-gradient(90deg, rgba(0,230,118,.06) 0%, transparent 100%);
+    border: 1px solid rgba(0,230,118,.15);
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .success-icon { font-size:18px; }
+  .success-text { color:#00e676; font-weight:700; font-size:13px; }
+  .success-sub { color:#446655; font-size:11px; margin-top:2px; }
 </style>
 </head>
 <body>
+<div class="wrap">
 <div class="window">
   <div class="bar">
     <span class="dot r"></span>
     <span class="dot y"></span>
     <span class="dot g"></span>
-    <span class="title">product-init — zsh</span>
+    <span class="title">product-init — session</span>
   </div>
+
+  <!-- Gate progress pills -->
+  <div class="gate-progress">
+    <div class="gate-pip done"></div>
+    <div class="gate-pip done"></div>
+    <div class="gate-pip done"></div>
+    <div class="gate-pip done"></div>
+    <div class="gate-pip done"></div>
+    <div class="gate-pip done"></div>
+    <div class="gate-pip done"></div>
+    <div class="gate-pip done"></div>
+    <div class="gate-pip done"></div>
+    <span class="gate-label"><span>9/9</span> gates passed</span>
+  </div>
+
   <div class="body">
     <div><span class="prompt">❯</span> <span class="cmd">/product-init "build an HR assessment tool"</span></div>
-    <div class="dim">  → 3 questions. AI drafts the rest.</div>
-    <div class="spacer"></div>
-    <div><span class="gate">Gate 1</span>  <span class="cyan bold">Discovery Constitution</span></div>
-    <div><span class="green">  ✓</span> JTBD defined — hiring manager needs evidence-based scoring</div>
-    <div><span class="green">  ✓</span> Four-risk model: feasibility · viability · usability · business</div>
-    <div><span class="green">  ✓</span> Kill criteria documented</div>
-    <div><span class="green">  ✓ Gate 1 passed → Gate 2 unlocked</span></div>
-    <div class="spacer"></div>
-    <div><span class="gate">Gate 2</span>  <span class="cyan bold">Statement of Work</span></div>
-    <div><span class="green">  ✓</span> Appetite: 2-week Shape Up cycle</div>
-    <div><span class="green">  ✓</span> PR-FAQ: success metric measurable</div>
-    <div><span class="green">  ✓ Gate 2 passed → Gate 3 unlocked</span></div>
-    <div class="spacer"></div>
-    <div><span class="gate">Gate 5</span>  <span class="cyan bold">QA</span></div>
-    <div><span class="green">  ✓</span> unit          42/42 passed</div>
-    <div><span class="green">  ✓</span> integration   18/18 passed</div>
-    <div><span class="green">  ✓</span> e2e            7/7  passed</div>
-    <div><span class="green">  ✓ Gate 5 passed → Gate 6 unlocked</span></div>
-    <div class="spacer"></div>
-    <div><span class="gate">Gate 7</span>  <span class="cyan bold">Deploy</span></div>
-    <div><span class="green">  ✓</span> demorpoject.vercel.app → HTTP 200</div>
-    <div><span class="green">  ✓</span> smoke job passed · rollback documented</div>
-    <div><span class="green">  ✓ Gate 7 passed → Gate 8 unlocked</span></div>
-    <div class="spacer"></div>
-    <div class="spacer"></div>
-    <div><span class="green bold">  CRITICAL: 0  ·  HIGH: 0  ·  All 9 gates: green</span></div>
+    <div class="dim">  ↳ 3 questions · AI drafts spec · 9 gates run in sequence</div>
+
+    <div class="big-spacer"></div>
+
+    <div class="gate-block">
+      <div><span style="color:#2a3a50">Gate 1 ·</span> <span class="cyan">Discovery Constitution</span></div>
+      <div><span class="green">  ✓</span> <span class="white">JTBD defined — hiring manager needs evidence-based scoring</span></div>
+      <div><span class="green">  ✓</span> <span class="white">Four-risk model: feasibility · viability · usability · business</span></div>
+      <div><span class="green">  ✓</span> <span class="white">Kill criteria documented</span></div>
+      <div class="dim">  → Gate 2 unlocked</div>
+    </div>
+
+    <div class="gate-block">
+      <div><span style="color:#2a3a50">Gate 2 ·</span> <span class="cyan">Statement of Work</span></div>
+      <div><span class="green">  ✓</span> <span class="white">Appetite: 2-week Shape Up cycle</span></div>
+      <div><span class="green">  ✓</span> <span class="white">PR-FAQ: success metric measurable</span></div>
+      <div class="dim">  → Gate 3 unlocked</div>
+    </div>
+
+    <div class="gate-block">
+      <div><span style="color:#2a3a50">Gate 5 ·</span> <span class="cyan">QA</span></div>
+      <div><span class="green">  ✓</span> <span class="white">unit          <span style="color:#00e676">42</span>/42 passed</span></div>
+      <div><span class="green">  ✓</span> <span class="white">integration   <span style="color:#00e676">18</span>/18 passed</span></div>
+      <div><span class="green">  ✓</span> <span class="white">e2e            <span style="color:#00e676"> 7</span>/7  passed</span></div>
+      <div class="dim">  → Gate 6 unlocked</div>
+    </div>
+
+    <div class="gate-block">
+      <div><span style="color:#2a3a50">Gate 7 ·</span> <span class="cyan">Deploy</span></div>
+      <div><span class="green">  ✓</span> <span class="white">demorpoject.vercel.app → HTTP <span style="color:#00d4ff">200</span></span></div>
+      <div><span class="green">  ✓</span> <span class="white">smoke job passed · rollback documented</span></div>
+      <div class="dim">  → Gate 8 unlocked</div>
+    </div>
+
+    <div class="success-banner">
+      <span class="success-icon">✦</span>
+      <div>
+        <div class="success-text">CRITICAL: 0 &nbsp;·&nbsp; HIGH: 0 &nbsp;·&nbsp; All 9 gates: green</div>
+        <div class="success-sub">Session complete · demorpoject.vercel.app · ready for handoff</div>
+      </div>
+    </div>
   </div>
+</div>
 </div>
 </body>
 </html>
