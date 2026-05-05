@@ -5,21 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>product-init — AI sets the goal. This makes sure you're shooting at the right one.</title>
   <meta name="description" content="9 hard gates between your AI and your deploy. CRITICAL findings block the pipeline. No --skip flag." />
+  <meta property="og:title" content="product-init" />
+  <meta property="og:description" content="9 hard gates between your AI and your deploy. No --skip flag." />
+  <meta property="og:image" content="https://mturac.github.io/product-init/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0e0e0e;
-      --surface: #1a1a1a;
-      --border: #2a2a2a;
-      --accent: #0066ff;
+      --bg: #080810;
+      --surface: #0f0f1a;
+      --surface2: #14141f;
+      --border: rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.14);
+      --accent: #4f6ef7;
+      --accent-bright: #6b85ff;
       --cyan: #00d4ff;
-      --text: #f0f0f0;
-      --muted: #888;
       --green: #00e676;
-      --red: #ff1744;
-      --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-      --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      --red: #ff4444;
+      --amber: #ffb300;
+      --text: #f0f0f8;
+      --muted: #6b6b80;
+      --muted2: #9090a8;
+      --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+      --font-sans: 'Inter', -apple-system, sans-serif;
     }
 
     html { scroll-behavior: smooth; }
@@ -29,537 +41,799 @@
       color: var(--text);
       font-family: var(--font-sans);
       line-height: 1.6;
-      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* NAV */
     nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem 2rem;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: rgba(14,14,14,0.92);
-      backdrop-filter: blur(12px);
+      position: fixed;
+      top: 0; left: 0; right: 0;
       z-index: 100;
+      padding: 0 40px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8,8,16,0.7);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
     }
     .nav-logo {
       font-family: var(--font-mono);
-      font-size: 0.95rem;
-      color: var(--cyan);
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text);
       text-decoration: none;
     }
-    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-logo span { color: var(--accent-bright); }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
     .nav-links a {
-      color: var(--muted);
+      font-size: 13px;
+      color: var(--muted2);
       text-decoration: none;
-      font-size: 0.875rem;
       transition: color 0.15s;
     }
     .nav-links a:hover { color: var(--text); }
     .nav-cta {
       background: var(--accent);
       color: #fff !important;
-      padding: 0.45rem 1rem;
+      padding: 7px 16px;
       border-radius: 6px;
-      font-size: 0.8rem !important;
       font-weight: 600;
+      font-size: 13px !important;
       transition: background 0.15s !important;
     }
-    .nav-cta:hover { background: #0052cc !important; color: #fff !important; }
+    .nav-cta:hover { background: var(--accent-bright) !important; color: #fff !important; }
 
     /* HERO */
     .hero {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 6rem 2rem 4rem;
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
+      padding: 120px 24px 80px;
+      overflow: hidden;
     }
-    .hero-eyebrow {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--accent);
-      letter-spacing: 0.08em;
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(79,110,247,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -10%;
+      left: 30%;
+      width: 500px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(0,212,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1px solid rgba(79,110,247,0.35);
+      background: rgba(79,110,247,0.1);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-bright);
+      margin-bottom: 28px;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 1.5rem;
     }
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 1.5rem;
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-bright);
+      animation: pulse 2s ease-in-out infinite;
     }
-    .hero h1 em {
-      font-style: normal;
-      color: var(--cyan);
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
     }
+
+    h1 {
+      font-size: clamp(42px, 7vw, 84px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 24px;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #fff 0%, var(--accent-bright) 50%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
     .hero-sub {
-      font-size: 1.15rem;
-      color: var(--muted);
-      max-width: 600px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.7;
+      font-size: clamp(16px, 2.2vw, 20px);
+      color: var(--muted2);
+      max-width: 580px;
+      margin: 0 auto 40px;
+      line-height: 1.65;
     }
-    .hero-sub strong { color: var(--text); }
+    .hero-sub strong { color: var(--text); font-weight: 600; }
+
     .hero-actions {
       display: flex;
-      gap: 1rem;
-      justify-content: center;
+      gap: 12px;
       flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 64px;
     }
     .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       background: var(--accent);
       color: #fff;
-      padding: 0.75rem 1.75rem;
+      padding: 13px 28px;
       border-radius: 8px;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 15px;
       text-decoration: none;
-      font-size: 0.95rem;
       transition: background 0.15s, transform 0.1s;
     }
-    .btn-primary:hover { background: #0052cc; transform: translateY(-1px); }
-    .btn-ghost {
+    .btn-primary:hover { background: var(--accent-bright); transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       background: transparent;
-      color: var(--muted);
-      padding: 0.75rem 1.75rem;
+      color: var(--muted2);
+      border: 1px solid var(--border-bright);
+      padding: 13px 28px;
       border-radius: 8px;
-      border: 1px solid var(--border);
-      font-weight: 500;
+      font-weight: 600;
+      font-size: 15px;
       text-decoration: none;
-      font-size: 0.95rem;
       transition: border-color 0.15s, color 0.15s;
     }
-    .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+    .btn-secondary:hover { border-color: var(--accent-bright); color: var(--text); }
 
-    /* TERMINAL */
-    .terminal-wrap {
-      max-width: 680px;
-      margin: 4rem auto 0;
-      padding: 0 2rem;
+    /* INSTALL BAR */
+    .install-bar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      border-radius: 10px;
+      padding: 14px 20px;
+      max-width: 560px;
+      width: 100%;
+      margin: 0 auto;
     }
-    .terminal {
-      background: #111;
+    .install-prefix {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent-bright);
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+    .install-cmd {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border-bright);
+      color: var(--muted2);
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font-sans);
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+    .copy-btn:hover { border-color: var(--accent-bright); color: var(--accent-bright); }
+    .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+    /* STATS */
+    .stats {
+      display: flex;
+      gap: 0;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 80px auto 0;
+      max-width: 800px;
+    }
+    .stat {
+      flex: 1;
+      min-width: 160px;
+      text-align: center;
+      padding: 32px 20px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-size: 44px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-num.blue { color: var(--accent-bright); }
+    .stat-num.red { color: var(--red); }
+    .stat-num.green { color: var(--green); }
+    .stat-num.cyan { color: var(--cyan); }
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* SECTION */
+    section {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 100px 24px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-bright);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 14px;
+    }
+    h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 17px;
+      color: var(--muted2);
+      max-width: 540px;
+      margin-bottom: 60px;
+    }
+
+    /* GATES GRID */
+    .gates-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
     }
+    .gate-card {
+      background: var(--surface);
+      padding: 28px 24px;
+      transition: background 0.2s;
+    }
+    .gate-card:hover { background: var(--surface2); }
+    .gate-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .gate-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .gate-desc {
+      font-size: 13px;
+      color: var(--muted2);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .gate-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tag-crit {
+      background: rgba(255,68,68,0.12);
+      color: var(--red);
+      border: 1px solid rgba(255,68,68,0.25);
+    }
+    .tag-block {
+      background: rgba(255,179,0,0.1);
+      color: var(--amber);
+      border: 1px solid rgba(255,179,0,0.2);
+    }
+    .tag-pass {
+      background: rgba(0,230,118,0.08);
+      color: var(--green);
+      border: 1px solid rgba(0,230,118,0.2);
+    }
+
+    /* TERMINAL */
+    .terminal {
+      background: #080810;
+      border: 1px solid var(--border-bright);
+      border-radius: 12px;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      margin-top: 60px;
+    }
     .terminal-bar {
-      background: #1e1e1e;
-      padding: 0.6rem 1rem;
+      background: var(--surface2);
+      padding: 12px 16px;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 8px;
       border-bottom: 1px solid var(--border);
     }
-    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
     .dot-r { background: #ff5f57; }
     .dot-y { background: #febc2e; }
     .dot-g { background: #28c840; }
-    .terminal-body {
-      padding: 1.25rem 1.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      line-height: 1.8;
-    }
-    .t-prompt { color: var(--accent); }
+    .terminal-title { margin-left: 8px; font-size: 12px; color: var(--muted); font-family: var(--font-sans); }
+    .terminal-body { padding: 24px; line-height: 2; }
+    .t-prompt { color: var(--accent-bright); }
     .t-cmd { color: var(--text); }
-    .t-gate { color: var(--muted); }
-    .t-pass { color: var(--green); }
-    .t-fail { color: var(--red); }
-    .t-cyan { color: var(--cyan); }
-    .t-dim { color: #555; }
+    .t-comment { color: var(--muted); }
+    .t-gate { color: var(--muted2); }
+    .t-pass { color: var(--green); font-weight: 600; }
+    .t-fail { color: var(--red); font-weight: 600; }
+    .t-crit { color: var(--red); }
+    .t-info { color: var(--cyan); }
+    .t-blank { height: 16px; }
 
-    /* STAT BAR */
-    .stat-bar {
-      display: flex;
-      justify-content: center;
-      gap: 4rem;
-      padding: 3.5rem 2rem;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      margin-top: 5rem;
-      flex-wrap: wrap;
-    }
-    .stat { text-align: center; }
-    .stat-num {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--cyan);
-      font-variant-numeric: tabular-nums;
-      display: block;
-    }
-    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
-
-    /* POSITIONING SECTION */
-    .positioning {
-      max-width: 760px;
-      margin: 5rem auto;
-      padding: 0 2rem;
-      text-align: center;
-    }
-    .positioning blockquote {
-      font-size: 1.4rem;
-      line-height: 1.5;
-      font-weight: 500;
-      color: var(--text);
-      border: none;
-      margin-bottom: 1rem;
-    }
-    .positioning blockquote em {
-      font-style: normal;
-      color: var(--cyan);
-    }
-    .positioning p {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    /* GATES */
-    .gates-section {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 2rem 5rem;
-    }
-    .section-label {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 2.5rem;
-      text-align: center;
-    }
-    .gates-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .gate-card {
+    /* QUOTE */
+    .quote-block {
+      border-left: 3px solid var(--accent);
+      padding: 24px 32px;
       background: var(--surface);
-      padding: 1.25rem 1.5rem;
-      transition: background 0.15s;
+      border-radius: 0 10px 10px 0;
+      margin: 60px 0;
     }
-    .gate-card:hover { background: #1f1f1f; }
-    .gate-num {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-    }
-    .gate-name {
+    .quote-block p {
+      font-size: 20px;
       font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 0.35rem;
       color: var(--text);
+      line-height: 1.5;
+      font-style: italic;
     }
-    .gate-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
-    .gate-card.gate-critical .gate-name { color: var(--cyan); }
+    .quote-source { margin-top: 12px; font-size: 13px; color: var(--muted); }
 
-    /* COMPARE */
-    .compare-section {
-      max-width: 680px;
-      margin: 0 auto 5rem;
-      padding: 0 2rem;
-    }
+    /* TABLE */
     .compare-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.875rem;
+      font-size: 14px;
     }
     .compare-table th {
       text-align: left;
-      padding: 0.6rem 1rem;
-      font-size: 0.75rem;
+      padding: 14px 20px;
+      font-size: 12px;
+      font-weight: 700;
       color: var(--muted);
-      font-weight: 500;
-      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border-bright);
     }
     .compare-table td {
-      padding: 0.75rem 1rem;
+      padding: 14px 20px;
       border-bottom: 1px solid var(--border);
-      color: var(--muted);
+      color: var(--muted2);
+      vertical-align: middle;
     }
-    .compare-table td:first-child { color: var(--text); font-weight: 500; }
-    .compare-table .yes { color: var(--green); }
-    .compare-table .no { color: #555; }
-    .compare-table tr.highlight td { color: var(--text); background: rgba(0,102,255,0.05); }
-    .compare-table tr.highlight td:first-child { color: var(--cyan); }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr.highlight td { background: rgba(79,110,247,0.05); color: var(--text); }
+    .compare-table td:first-child { font-weight: 600; color: var(--text); }
+    .check { color: var(--green); font-size: 16px; }
+    .cross { color: var(--muted); }
+    .partial { color: var(--amber); }
 
     /* RUNTIMES */
-    .runtimes {
-      max-width: 680px;
-      margin: 0 auto 5rem;
-      padding: 0 2rem;
-    }
-    .runtime-list {
+    .runtime-chips {
       display: flex;
-      gap: 1rem;
+      gap: 10px;
       flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 2rem;
+      margin-top: 32px;
     }
-    .runtime-chip {
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1.25rem;
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--muted);
-      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
     }
-    .runtime-chip strong { display: block; color: var(--text); font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .chip-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
 
-    /* INSTALL */
+    /* INSTALL SECTION */
     .install-section {
-      max-width: 580px;
-      margin: 0 auto 5rem;
-      padding: 0 2rem;
       text-align: center;
+      padding: 100px 24px;
+      position: relative;
+      overflow: hidden;
     }
-    .code-block {
-      background: #111;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem 1.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      color: var(--cyan);
-      text-align: left;
-      margin-top: 1.5rem;
+    .install-section::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(79,110,247,0.12) 0%, transparent 70%);
+      pointer-events: none;
     }
 
     /* FOOTER */
     footer {
       border-top: 1px solid var(--border);
-      padding: 2rem;
+      padding: 40px 24px;
       text-align: center;
-      font-size: 0.8rem;
-      color: #555;
     }
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    .footer-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-logo { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 12px; color: var(--muted); }
 
-    @media (max-width: 600px) {
-      .stat-bar { gap: 2rem; }
-      .stat-num { font-size: 2rem; }
-      nav { padding: 1rem; }
-      .nav-links { gap: 1rem; }
+    /* DIVIDER */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .gates-grid { grid-template-columns: 1fr; }
+      .stats { flex-direction: column; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:last-child { border-bottom: none; }
+      .install-bar { flex-wrap: wrap; }
+      .install-cmd { white-space: normal; word-break: break-all; }
+    }
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; align-items: center; }
+      .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
-  <a class="nav-logo" href="/"><img src="logo-square.svg" width="28" height="28" style="vertical-align:middle;margin-right:8px;border-radius:6px"> product-init</a>
+  <a href="#" class="nav-logo">product<span>-init</span></a>
   <div class="nav-links">
     <a href="#gates">Gates</a>
-    <a href="#install">Install</a>
-    <a href="https://github.com/mturac/product-init" target="_blank">GitHub</a>
-    <a class="nav-cta" href="https://github.com/mturac/product-init" target="_blank">Get started →</a>
+    <a href="#compare">Compare</a>
+    <a href="https://github.com/mturac/product-init">Docs</a>
+    <a href="https://github.com/mturac/product-init" class="nav-cta">GitHub →</a>
   </div>
 </nav>
 
-<section class="hero">
-  <div class="hero-eyebrow">Claude Code Skill · Open Source</div>
-  <h1>AI sets the goal.<br><em>This makes sure you're<br>shooting at the right one.</em></h1>
+<!-- HERO -->
+<div class="hero">
+  <div class="badge"><span class="badge-dot"></span>Open Source · Claude Code · Codex · OpenClaw</div>
+
+  <h1>
+    AI sets the goal.<br>
+    <span class="gradient-text">Shoot at the right one.</span>
+  </h1>
+
   <p class="hero-sub">
-    Codex ships <code style="font-family:var(--font-mono);color:var(--cyan);font-size:0.9em">/goal</code>.
-    Every AI tool now moves faster.<br>
-    <strong>43% of startups still die from the same cause: wrong product.</strong><br>
-    9 hard gates. CRITICAL findings block the pipeline. No <code style="font-family:var(--font-mono);font-size:0.85em">--skip</code> flag.
+    <strong>43% of startups fail from no market need.</strong> Not bad code.
+    product-init puts 9 hard-gated stages between your idea and your deploy —
+    CRITICAL findings block the pipeline. No <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--red)">--skip</code> flag.
   </p>
+
   <div class="hero-actions">
-    <a class="btn-primary" href="https://github.com/mturac/product-init" target="_blank">View on GitHub</a>
-    <a class="btn-ghost" href="#gates">See the 9 gates</a>
+    <a href="https://github.com/mturac/product-init" class="btn-primary">
+      ★ Star on GitHub
+    </a>
+    <a href="#gates" class="btn-secondary">
+      See the 9 gates →
+    </a>
   </div>
-</section>
 
-<div class="terminal-wrap">
-  <div class="terminal">
-    <div class="terminal-bar">
-      <span class="dot dot-r"></span>
-      <span class="dot dot-y"></span>
-      <span class="dot dot-g"></span>
+  <div class="install-bar">
+    <span class="install-prefix">$</span>
+    <span class="install-cmd" id="install-cmd">curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</span>
+    <button class="copy-btn" id="copy-btn" onclick="copyInstall()">Copy</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num blue">9</div>
+      <div class="stat-label">Hard-gated stages</div>
     </div>
-    <div class="terminal-body">
-      <div><span class="t-prompt">❯</span> <span class="t-cmd">/product-init "build an HR assessment tool"</span></div>
-      <div class="t-dim">→ 3 questions. AI drafts the rest.</div>
-      <br>
-      <div><span class="t-gate">Gate 1</span> <span class="t-cyan">Discovery Constitution</span> <span class="t-dim">running audit...</span></div>
-      <div class="t-pass">  ✓ JTBD defined</div>
-      <div class="t-pass">  ✓ Four-risk model: feasibility, viability, usability, business</div>
-      <div class="t-pass">  ✓ Kill criteria documented</div>
-      <div class="t-pass">  Gate 1 passed → Gate 2 unlocked</div>
-      <br>
-      <div><span class="t-gate">Gate 5</span> <span class="t-cyan">QA</span></div>
-      <div class="t-pass">  ✓ unit       42/42</div>
-      <div class="t-pass">  ✓ integration 18/18</div>
-      <div class="t-pass">  ✓ e2e         7/7</div>
-      <br>
-      <div><span class="t-gate">Gate 7</span> <span class="t-cyan">Deploy</span></div>
-      <div class="t-pass">  ✓ demorpoject.vercel.app → HTTP 200</div>
-      <div class="t-pass">  ✓ smoke job passed</div>
-      <br>
-      <div class="t-pass">CRITICAL: 0 · HIGH: 0 · All gates: green</div>
+    <div class="stat">
+      <div class="stat-num red">43%</div>
+      <div class="stat-label">Startups die from no PMF</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num green">0</div>
+      <div class="stat-label">Skip flags. None.</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num cyan">3</div>
+      <div class="stat-label">Runtimes supported</div>
     </div>
   </div>
 </div>
 
-<div class="stat-bar">
-  <div class="stat">
-    <span class="stat-num">9</span>
-    <div class="stat-label">hard gates</div>
-  </div>
-  <div class="stat">
-    <span class="stat-num">43%</span>
-    <div class="stat-label">of startups die from no PMF<br><span style="font-size:0.7rem">(CB Insights 2024)</span></div>
-  </div>
-  <div class="stat">
-    <span class="stat-num">0</span>
-    <div class="stat-label">--skip flags</div>
-  </div>
-  <div class="stat">
-    <span class="stat-num">3</span>
-    <div class="stat-label">runtimes supported</div>
-  </div>
-</div>
+<!-- GATES -->
+<hr class="divider" />
+<section id="gates">
+  <div class="section-label">The pipeline</div>
+  <h2>9 gates. Every one blocks.</h2>
+  <p class="section-sub">Each gate is a Python audit script with real pass/fail criteria. Gates 1 and 5 are CRITICAL — one CRITICAL finding halts everything.</p>
 
-<div class="positioning">
-  <blockquote>"Vibe-coding without a product spec isn't moving fast.<br>It's building <em>the wrong thing</em> at the speed of AI."</blockquote>
-  <p>Gate 1 is the one that matters most. It asks: who gets fired if this fails, what job are they hiring it for, and what does failure look like in production? That's the goal you're shooting at. Everything else is build speed.</p>
-</div>
-
-<section class="gates-section" id="gates">
-  <div class="section-label">The 9 Gates</div>
   <div class="gates-grid">
-    <div class="gate-card gate-critical">
-      <div class="gate-num">Gate 1</div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 01</div>
       <div class="gate-name">Discovery Constitution</div>
-      <div class="gate-desc">JTBD + Cagan four-risk model. Blocks Gate 2. No override.</div>
+      <div class="gate-desc">JTBD + four-risk model. Who gets fired if this fails? What does failure look like in production?</div>
+      <span class="gate-tag tag-crit">● CRITICAL</span>
     </div>
     <div class="gate-card">
-      <div class="gate-num">Gate 2</div>
+      <div class="gate-num">Gate 02</div>
       <div class="gate-name">Statement of Work</div>
-      <div class="gate-desc">Shape Up appetite. Amazon PR-FAQ format. Every metric measurable.</div>
+      <div class="gate-desc">Shape Up appetite + PR-FAQ. Scope is locked. Deferred list is explicit.</div>
+      <span class="gate-tag tag-block">Blocking</span>
     </div>
     <div class="gate-card">
-      <div class="gate-num">Gate 3</div>
+      <div class="gate-num">Gate 03</div>
       <div class="gate-name">Design</div>
-      <div class="gate-desc">Every screen maps to a job-to-be-done from Gate 1.</div>
+      <div class="gate-desc">Every screen maps to a job defined in Gate 1. No orphan screens.</div>
+      <span class="gate-tag tag-block">Blocking</span>
     </div>
     <div class="gate-card">
-      <div class="gate-num">Gate 4</div>
+      <div class="gate-num">Gate 04</div>
       <div class="gate-name">Build</div>
-      <div class="gate-desc">Commit-to-AC traceability. No orphan TODOs.</div>
+      <div class="gate-desc">Commit-to-AC linkage required. No orphan TODOs allowed in shipped code.</div>
+      <span class="gate-tag tag-block">Blocking</span>
     </div>
-    <div class="gate-card gate-critical">
-      <div class="gate-num">Gate 5</div>
+    <div class="gate-card">
+      <div class="gate-num">Gate 05</div>
       <div class="gate-name">QA</div>
-      <div class="gate-desc">Unit + integration + E2E — all three, all green. Not "mostly."</div>
+      <div class="gate-desc">Unit + integration + E2E — all must be green. One red test = full stop.</div>
+      <span class="gate-tag tag-crit">● CRITICAL</span>
     </div>
     <div class="gate-card">
-      <div class="gate-num">Gate 6</div>
+      <div class="gate-num">Gate 06</div>
       <div class="gate-name">UAT</div>
-      <div class="gate-desc">Real human signs off on a real URL. sha256-tagged report.</div>
+      <div class="gate-desc">A real human must sign off on a real URL. No synthetic sign-offs.</div>
+      <span class="gate-tag tag-block">Blocking</span>
     </div>
     <div class="gate-card">
-      <div class="gate-num">Gate 7</div>
+      <div class="gate-num">Gate 07</div>
       <div class="gate-name">Deploy</div>
-      <div class="gate-desc">HTTP 200 to prod URL. Smoke job. Rollback drill documented.</div>
+      <div class="gate-desc">HTTP 200 to prod, smoke job passes, rollback drill completed.</div>
+      <span class="gate-tag tag-pass">Pass/Fail</span>
     </div>
     <div class="gate-card">
-      <div class="gate-num">Gate 8</div>
+      <div class="gate-num">Gate 08</div>
       <div class="gate-name">Handoff</div>
       <div class="gate-desc">ADRs + runbook + DEBT.md. A contract, not a README.</div>
+      <span class="gate-tag tag-block">Blocking</span>
     </div>
     <div class="gate-card">
-      <div class="gate-num">Gate 9</div>
+      <div class="gate-num">Gate 09</div>
       <div class="gate-name">Warranty</div>
-      <div class="gate-desc">72h monitoring window. Error rate, latency, uptime. All three.</div>
+      <div class="gate-desc">72-hour monitoring window. Error rate, latency, uptime — all tracked.</div>
+      <span class="gate-tag tag-pass">Pass/Fail</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-title">product-init — HR assessment tool</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-prompt">$</span> <span class="t-cmd">/product-init "build an HR assessment tool"</span></div>
+      <div class="t-blank"></div>
+      <div><span class="t-info">▶ Gate 1</span> <span class="t-gate">Discovery Constitution</span></div>
+      <div>&nbsp;&nbsp;<span class="t-comment"># Who gets fired if this fails?</span></div>
+      <div>&nbsp;&nbsp;<span class="t-comment"># 3 questions. AI drafts the rest.</span></div>
+      <div>&nbsp;&nbsp;<span class="t-pass">✓ JTBD defined</span> <span class="t-gate">— hire on evidence, not gut feel</span></div>
+      <div>&nbsp;&nbsp;<span class="t-pass">✓ Kill criteria set</span> <span class="t-gate">— &lt;60% completion rate → pivot</span></div>
+      <div>&nbsp;&nbsp;<span class="t-pass">✓ Four-risk audit passed</span></div>
+      <div class="t-blank"></div>
+      <div><span class="t-info">▶ Gate 5</span> <span class="t-gate">QA</span></div>
+      <div>&nbsp;&nbsp;<span class="t-pass">✓ 47 unit tests passed</span></div>
+      <div>&nbsp;&nbsp;<span class="t-pass">✓ 12 integration tests passed</span></div>
+      <div>&nbsp;&nbsp;<span class="t-pass">✓ E2E: live interview session green</span></div>
+      <div class="t-blank"></div>
+      <div><span class="t-info">▶ Gate 9</span> <span class="t-gate">Warranty — 72h window</span></div>
+      <div>&nbsp;&nbsp;<span class="t-pass">✓ Error rate 0.02%</span> <span class="t-gate">— p99 latency 210ms</span></div>
+      <div>&nbsp;&nbsp;<span class="t-pass">✓ Uptime 99.98%</span></div>
+      <div class="t-blank"></div>
+      <div><span class="t-pass">✓ 9/9 gates passed.</span> <span class="t-info">Product shipped.</span></div>
     </div>
   </div>
 </section>
 
-<section class="compare-section">
-  <div class="section-label">Different category</div>
+<!-- QUOTE -->
+<section style="padding: 0 24px 80px;">
+  <div style="max-width:1080px;margin:0 auto;">
+    <div class="quote-block">
+      <p>"Vibe-coding without a product spec isn't moving fast. It's building the wrong thing at the speed of AI."</p>
+      <div class="quote-source">— The 43% problem · CB Insights 2024</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<hr class="divider" />
+<section id="compare">
+  <div class="section-label">Why product-init</div>
+  <h2>Every other tool ships faster.</h2>
+  <p class="section-sub">Only product-init asks whether you should ship at all — before writing the first line of code.</p>
+
   <table class="compare-table">
     <thead>
       <tr>
         <th>Tool</th>
-        <th>What you get</th>
+        <th>Builds fast</th>
         <th>PMF validation</th>
-        <th>Gate system</th>
+        <th>JTBD framework</th>
+        <th>Blocking audit gates</th>
+        <th>Kill criteria</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>v0</td>
-        <td>UI components</td>
-        <td class="no">—</td>
-        <td class="no">—</td>
+        <td>v0 / Bolt / Lovable</td>
+        <td class="check">✓</td>
+        <td class="cross">—</td>
+        <td class="cross">—</td>
+        <td class="cross">—</td>
+        <td class="cross">—</td>
       </tr>
       <tr>
-        <td>Bolt</td>
-        <td>Full-stack app</td>
-        <td class="no">—</td>
-        <td class="no">—</td>
+        <td>Cursor / Copilot</td>
+        <td class="check">✓</td>
+        <td class="cross">—</td>
+        <td class="cross">—</td>
+        <td class="cross">—</td>
+        <td class="cross">—</td>
       </tr>
       <tr>
-        <td>Lovable</td>
-        <td>Polished UI</td>
-        <td class="no">—</td>
-        <td class="no">—</td>
-      </tr>
-      <tr>
-        <td>Cursor / Codex</td>
-        <td>AI code editor</td>
-        <td class="no">—</td>
-        <td class="no">—</td>
+        <td>Devin / SWE-agent</td>
+        <td class="check">✓</td>
+        <td class="cross">—</td>
+        <td class="cross">—</td>
+        <td class="partial">~</td>
+        <td class="cross">—</td>
       </tr>
       <tr class="highlight">
         <td>product-init</td>
-        <td>The thing before all of those</td>
-        <td class="yes">Gate 1</td>
-        <td class="yes">9 gates</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
       </tr>
     </tbody>
   </table>
 </section>
 
-<section class="runtimes" id="install">
-  <div class="section-label">Runtime support</div>
-  <div class="runtime-list">
-    <div class="runtime-chip"><strong>Claude Code</strong>auto-detected</div>
-    <div class="runtime-chip"><strong>Codex CLI</strong>auto-detected</div>
-    <div class="runtime-chip"><strong>OpenClaw + Hermes</strong>auto-detected</div>
+<!-- RUNTIMES -->
+<hr class="divider" />
+<section>
+  <div class="section-label">Multi-runtime</div>
+  <h2>Works where you work.</h2>
+  <p class="section-sub">One install script. Auto-detects your runtime. If you have all three, installs to all three.</p>
+
+  <div class="runtime-chips">
+    <div class="chip"><span class="chip-dot"></span>Claude Code</div>
+    <div class="chip"><span class="chip-dot"></span>Codex CLI</div>
+    <div class="chip"><span class="chip-dot"></span>OpenClaw + Hermes</div>
+  </div>
+
+  <div class="terminal" style="margin-top:32px;">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-title">install.sh — runtime auto-detect</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-prompt">$</span> <span class="t-cmd">curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</span></div>
+      <div class="t-blank"></div>
+      <div><span class="t-pass">→ Installing to ~/.claude/skills/product-init ...</span></div>
+      <div><span class="t-pass">→ Installing to ~/.codex/skills/product-init ...</span></div>
+      <div><span class="t-pass">→ Installing to ~/.openclaw/skills/product-init ...</span></div>
+      <div class="t-blank"></div>
+      <div><span class="t-info">product-init ready.</span> <span class="t-gate">Type /product-init in your AI tool to start.</span></div>
+    </div>
   </div>
 </section>
 
-<section class="install-section">
-  <div class="section-label">Install</div>
-  <div class="code-block">
-    <div style="color:#555"># Works on Claude Code, Codex CLI, OpenClaw — auto-detected</div>
-    <div>$ curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</div>
-  </div>
-  <div style="margin-top:2.5rem;">
-    <a class="btn-primary" href="https://github.com/mturac/product-init" target="_blank">View on GitHub →</a>
-  </div>
-</section>
-
-<footer>
-  <p>
-    Open source · Built on <a href="https://github.com/mturac/product-init">github.com/mturac/product-init</a>
-    · Research: CB Insights · Christensen JTBD · Basecamp Shape Up · Amazon PR-FAQ · Cagan four-risk
+<!-- FINAL CTA -->
+<div class="install-section">
+  <div class="section-label" style="margin-bottom:16px;">Get started</div>
+  <h2 style="margin-bottom:16px;">One command. Nine gates. Shipped.</h2>
+  <p style="color:var(--muted2);font-size:16px;margin-bottom:40px;max-width:480px;margin-left:auto;margin-right:auto;">
+    Free. Open source. Works on every AI coding runtime.
   </p>
+  <div class="install-bar" style="margin:0 auto 24px;">
+    <span class="install-prefix">$</span>
+    <span class="install-cmd">curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</span>
+    <button class="copy-btn" onclick="copyInstall()">Copy</button>
+  </div>
+  <a href="https://github.com/mturac/product-init" class="btn-primary" style="margin-top:8px;">
+    View on GitHub →
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-logo">product-init v2.1.0</span>
+    <div class="footer-links">
+      <a href="https://github.com/mturac/product-init">GitHub</a>
+      <a href="https://github.com/mturac/product-init/blob/main/README.md">Docs</a>
+      <a href="https://github.com/mturac/product-init/issues">Issues</a>
+    </div>
+    <span class="footer-copy">MIT License · Built by mturac</span>
+  </div>
 </footer>
 
+<script>
+  function copyInstall() {
+    const cmd = 'curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash';
+    navigator.clipboard.writeText(cmd).then(() => {
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+  }
+</script>
 </body>
 </html>
