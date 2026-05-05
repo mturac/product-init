@@ -1,839 +1,603 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>product-init — AI sets the goal. This makes sure you're shooting at the right one.</title>
-  <meta name="description" content="9 hard gates between your AI and your deploy. CRITICAL findings block the pipeline. No --skip flag." />
-  <meta property="og:title" content="product-init" />
-  <meta property="og:description" content="9 hard gates between your AI and your deploy. No --skip flag." />
-  <meta property="og:image" content="https://mturac.github.io/product-init/og.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>product-init — Ship the right product.</title>
+<meta name="description" content="A 9-gate AI product delivery pipeline. CRITICAL findings block the pipeline. No --skip flag." />
+<link rel="icon" type="image/svg+xml" href="logo-square.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#05050f;
+    --bg-2:#0a0a1a;
+    --surface:rgba(255,255,255,.025);
+    --surface-2:rgba(255,255,255,.045);
+    --border:rgba(255,255,255,.08);
+    --border-2:rgba(255,255,255,.14);
+    --text:#f4f4f8;
+    --muted:#8a8aa0;
+    --dim:#5a5a72;
+    --primary:#5b6af8;
+    --primary-2:#8b5cf6;
+    --accent:#00d4ff;
+    --success:#00e676;
+    --danger:#ff4444;
+    --grad:linear-gradient(135deg,#5b6af8 0%,#8b5cf6 50%,#00d4ff 100%);
+    --grad-2:linear-gradient(120deg,#00d4ff,#5b6af8,#8b5cf6,#ff4444);
+  }
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    font-feature-settings:"cv02","cv03","cv04","cv11","ss01";
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--primary);color:#fff}
+  a{color:inherit;text-decoration:none}
+  img,svg{display:block;max-width:100%}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
 
-    :root {
-      --bg: #080810;
-      --surface: #0f0f1a;
-      --surface2: #14141f;
-      --border: rgba(255,255,255,0.07);
-      --border-bright: rgba(255,255,255,0.14);
-      --accent: #4f6ef7;
-      --accent-bright: #6b85ff;
-      --cyan: #00d4ff;
-      --green: #00e676;
-      --red: #ff4444;
-      --amber: #ffb300;
-      --text: #f0f0f8;
-      --muted: #6b6b80;
-      --muted2: #9090a8;
-      --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
-      --font-sans: 'Inter', -apple-system, sans-serif;
-    }
+  .fabric{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .grid{
+    position:absolute;inset:-2px;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(ellipse 80% 70% at 50% 0%,#000 0%,transparent 70%);
+    -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 0%,#000 0%,transparent 70%);
+    animation:gridDrift 60s linear infinite;
+  }
+  @keyframes gridDrift{from{background-position:0 0,0 0}to{background-position:64px 64px,64px 64px}}
+  .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;mix-blend-mode:screen;will-change:transform}
+  .orb.a{width:520px;height:520px;background:#5b6af8;top:-160px;left:-120px;animation:floatA 18s ease-in-out infinite}
+  .orb.b{width:460px;height:460px;background:#00d4ff;top:160px;right:-160px;animation:floatB 22s ease-in-out infinite}
+  .orb.c{width:600px;height:600px;background:#8b5cf6;top:900px;left:30%;animation:floatC 26s ease-in-out infinite;opacity:.35}
+  @keyframes floatA{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,60px)}}
+  @keyframes floatB{0%,100%{transform:translate(0,0)}50%{transform:translate(-90px,80px)}}
+  @keyframes floatC{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,-70px)}}
 
-    html { scroll-behavior: smooth; }
+  .container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
-      line-height: 1.6;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+  .nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:saturate(160%) blur(18px);
+    -webkit-backdrop-filter:saturate(160%) blur(18px);
+    background:rgba(5,5,15,.6);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 0;position:relative}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em;font-size:15px}
+  .brand-mark{width:26px;height:26px;border-radius:7px;background:var(--grad);box-shadow:0 0 24px rgba(91,106,248,.5);position:relative}
+  .brand-mark::after{content:"";position:absolute;inset:5px;border:1.5px solid #fff;border-radius:3px;opacity:.85}
+  .nav-links{display:flex;gap:28px;align-items:center}
+  .nav-links a{color:var(--muted);font-size:14px;font-weight:500;transition:color .2s ease}
+  .nav-links a:hover{color:var(--text)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 16px;border-radius:10px;
+    font-size:14px;font-weight:600;letter-spacing:-.01em;
+    border:1px solid var(--border);background:var(--surface);
+    transition:all .2s ease;
+  }
+  .btn:hover{background:var(--surface-2);border-color:var(--border-2);transform:translateY(-1px)}
+  .btn-primary{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 8px 24px -8px rgba(91,106,248,.6)}
+  .btn-primary:hover{box-shadow:0 12px 32px -8px rgba(91,106,248,.8);transform:translateY(-1px)}
+  .btn .arr{transition:transform .2s ease}
+  .btn:hover .arr{transform:translateX(2px)}
 
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 0 40px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(8,8,16,0.7);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-logo {
-      font-family: var(--font-mono);
-      font-weight: 500;
-      font-size: 14px;
-      color: var(--text);
-      text-decoration: none;
-    }
-    .nav-logo span { color: var(--accent-bright); }
-    .nav-links { display: flex; gap: 28px; align-items: center; }
-    .nav-links a {
-      font-size: 13px;
-      color: var(--muted2);
-      text-decoration: none;
-      transition: color 0.15s;
-    }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      background: var(--accent);
-      color: #fff !important;
-      padding: 7px 16px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 13px !important;
-      transition: background 0.15s !important;
-    }
-    .nav-cta:hover { background: var(--accent-bright) !important; color: #fff !important; }
+  .hero{padding:88px 0 96px;position:relative}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:6px 12px;border-radius:999px;
+    background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.2);
+    font-size:12.5px;font-weight:500;color:#ffb4b4;
+    letter-spacing:.01em;margin-bottom:28px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:#ff4444;box-shadow:0 0 12px #ff4444;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  h1.headline{
+    font-size:clamp(48px,8vw,104px);
+    font-weight:800;
+    line-height:.95;
+    letter-spacing:-.05em;
+    margin:0 0 28px;
+  }
+  .grad-text{
+    background:var(--grad-2);
+    background-size:300% 300%;
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+    animation:gradShift 8s ease infinite;
+    display:inline-block;
+  }
+  @keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .subhead{font-size:clamp(17px,1.5vw,20px);color:var(--muted);max-width:640px;margin:0 0 40px;line-height:1.55}
+  .subhead strong{color:var(--text);font-weight:600}
+  .skip-flag{font-family:'JetBrains Mono',monospace;color:#ff8a8a;background:rgba(255,68,68,.08);padding:2px 7px;border-radius:5px;font-size:.92em}
 
-    /* HERO */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 120px 24px 80px;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 600px;
-      background: radial-gradient(ellipse at center, rgba(79,110,247,0.18) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: -10%;
-      left: 30%;
-      width: 500px;
-      height: 400px;
-      background: radial-gradient(ellipse at center, rgba(0,212,255,0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
+  .install{
+    display:inline-flex;align-items:center;gap:0;
+    background:rgba(255,255,255,.04);border:1px solid var(--border-2);
+    border-radius:999px;padding:6px 6px 6px 22px;
+    font-family:'JetBrains Mono',monospace;font-size:14px;
+    max-width:100%;overflow:hidden;
+    transition:border-color .2s ease;
+  }
+  .install:hover{border-color:rgba(91,106,248,.4)}
+  .install .prompt{color:var(--accent);margin-right:10px}
+  .install code{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+  .copy-btn{
+    margin-left:14px;display:inline-flex;align-items:center;gap:6px;
+    padding:8px 14px;border-radius:999px;background:var(--surface-2);
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+    transition:all .18s ease;border:1px solid var(--border);
+  }
+  .copy-btn:hover{background:rgba(91,106,248,.15);border-color:rgba(91,106,248,.4);color:#fff}
+  .copy-btn.copied{background:rgba(0,230,118,.15);border-color:rgba(0,230,118,.4);color:#7fffb6}
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 99px;
-      border: 1px solid rgba(79,110,247,0.35);
-      background: rgba(79,110,247,0.1);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent-bright);
-      margin-bottom: 28px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    .badge-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent-bright);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
-    }
+  .hero-actions{display:flex;gap:14px;align-items:center;margin-top:24px;flex-wrap:wrap}
+  .ghost-link{color:var(--muted);font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:color .2s ease}
+  .ghost-link:hover{color:var(--text)}
 
-    h1 {
-      font-size: clamp(42px, 7vw, 84px);
-      font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: -0.04em;
-      margin-bottom: 24px;
-    }
-    .gradient-text {
-      background: linear-gradient(135deg, #fff 0%, var(--accent-bright) 50%, var(--cyan) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:88px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .stat{padding:28px 24px;border-right:1px solid var(--border)}
+  .stat:last-child{border-right:0}
+  .stat .num{font-size:clamp(34px,4vw,52px);font-weight:800;letter-spacing:-.04em;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;line-height:1}
+  .stat .lbl{margin-top:10px;color:var(--muted);font-size:13px;font-weight:500;letter-spacing:.02em;text-transform:uppercase}
 
-    .hero-sub {
-      font-size: clamp(16px, 2.2vw, 20px);
-      color: var(--muted2);
-      max-width: 580px;
-      margin: 0 auto 40px;
-      line-height: 1.65;
-    }
-    .hero-sub strong { color: var(--text); font-weight: 600; }
+  section{padding:120px 0;position:relative}
+  .sec-eyebrow{font-size:12.5px;font-weight:600;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px}
+  .sec-title{font-size:clamp(36px,4.6vw,60px);font-weight:800;letter-spacing:-.04em;line-height:1.05;margin:0 0 18px;max-width:760px}
+  .sec-sub{color:var(--muted);font-size:18px;line-height:1.55;max-width:640px;margin:0 0 64px}
 
-    .hero-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 64px;
-    }
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--accent);
-      color: #fff;
-      padding: 13px 28px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 15px;
-      text-decoration: none;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .btn-primary:hover { background: var(--accent-bright); transform: translateY(-1px); }
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: transparent;
-      color: var(--muted2);
-      border: 1px solid var(--border-bright);
-      padding: 13px 28px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 15px;
-      text-decoration: none;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .btn-secondary:hover { border-color: var(--accent-bright); color: var(--text); }
+  .pipeline{position:relative;padding-left:0}
+  .gate{
+    display:grid;grid-template-columns:200px 1fr;gap:48px;
+    padding:36px 0;border-top:1px solid var(--border);
+    position:relative;transition:background .25s ease;
+  }
+  .gate:last-child{border-bottom:1px solid var(--border)}
+  .gate:hover{background:linear-gradient(90deg,rgba(91,106,248,.04),transparent 60%)}
+  .gate-num{
+    font-size:clamp(64px,9vw,120px);
+    font-weight:800;letter-spacing:-.07em;line-height:.85;
+    color:transparent;-webkit-text-stroke:1.5px var(--border-2);
+    font-feature-settings:"tnum";
+    transition:all .3s ease;
+  }
+  .gate:hover .gate-num{
+    -webkit-text-stroke:1.5px transparent;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;
+  }
+  .gate-body{padding-top:18px}
+  .gate-meta{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+  .gate-name{font-size:24px;font-weight:700;letter-spacing:-.025em}
+  .tag{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:5px;border:1px solid var(--border-2)}
+  .tag.crit{background:rgba(255,68,68,.1);border-color:rgba(255,68,68,.35);color:#ff8a8a}
+  .tag.std{color:var(--muted)}
+  .gate-desc{color:var(--muted);font-size:15.5px;max-width:640px;line-height:1.6;margin:0}
 
-    /* INSTALL BAR */
-    .install-bar {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
-      border-radius: 10px;
-      padding: 14px 20px;
-      max-width: 560px;
-      width: 100%;
-      margin: 0 auto;
-    }
-    .install-prefix {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: var(--accent-bright);
-      margin-right: 8px;
-      flex-shrink: 0;
-    }
-    .install-cmd {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: var(--text);
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .copy-btn {
-      background: none;
-      border: 1px solid var(--border-bright);
-      color: var(--muted2);
-      padding: 5px 12px;
-      border-radius: 5px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      font-family: var(--font-sans);
-      flex-shrink: 0;
-      margin-left: 12px;
-    }
-    .copy-btn:hover { border-color: var(--accent-bright); color: var(--accent-bright); }
-    .copy-btn.copied { border-color: var(--green); color: var(--green); }
+  .compare{
+    border:1px solid var(--border);border-radius:18px;
+    overflow:hidden;background:var(--surface);
+  }
+  .compare table{width:100%;border-collapse:collapse}
+  .compare th,.compare td{padding:18px 22px;text-align:left;font-size:15px;border-bottom:1px solid var(--border)}
+  .compare th{font-weight:600;color:var(--muted);font-size:13px;letter-spacing:.05em;text-transform:uppercase;background:rgba(255,255,255,.02)}
+  .compare tbody tr{transition:background .2s ease}
+  .compare tbody tr:hover{background:rgba(91,106,248,.05)}
+  .compare tbody tr:last-child td{border-bottom:0}
+  .compare td.label{font-weight:500;color:var(--text)}
+  .check{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(0,230,118,.12);color:#7fffb6}
+  .x{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(255,68,68,.12);color:#ff8a8a}
 
-    /* STATS */
-    .stats {
-      display: flex;
-      gap: 0;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 80px auto 0;
-      max-width: 800px;
-    }
-    .stat {
-      flex: 1;
-      min-width: 160px;
-      text-align: center;
-      padding: 32px 20px;
-      border-right: 1px solid var(--border);
-    }
-    .stat:last-child { border-right: none; }
-    .stat-num {
-      font-size: 44px;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .stat-num.blue { color: var(--accent-bright); }
-    .stat-num.red { color: var(--red); }
-    .stat-num.green { color: var(--green); }
-    .stat-num.cyan { color: var(--cyan); }
-    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+  .runtimes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .runtime{
+    padding:28px;border:1px solid var(--border);border-radius:16px;
+    background:var(--surface);transition:all .25s ease;position:relative;overflow:hidden;
+  }
+  .runtime::before{
+    content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;
+    background:var(--grad);opacity:0;transition:opacity .25s ease;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;
+  }
+  .runtime:hover{transform:translateY(-3px);background:var(--surface-2)}
+  .runtime:hover::before{opacity:1}
+  .runtime h3{margin:0 0 6px;font-size:18px;font-weight:700;letter-spacing:-.02em}
+  .runtime p{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+  .runtime code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent);background:rgba(0,212,255,.08);padding:5px 9px;border-radius:6px;display:inline-block}
 
-    /* SECTION */
-    section {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 100px 24px;
-    }
+  .research{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  .citation{
+    padding:20px;border:1px solid var(--border);border-radius:14px;
+    background:var(--surface);transition:all .25s ease;
+  }
+  .citation:hover{border-color:var(--border-2);background:var(--surface-2)}
+  .citation .src{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .citation .desc{font-size:13.5px;color:var(--muted);line-height:1.5}
 
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--accent-bright);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 14px;
-    }
-    h2 {
-      font-size: clamp(28px, 4vw, 48px);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin-bottom: 16px;
-    }
-    .section-sub {
-      font-size: 17px;
-      color: var(--muted2);
-      max-width: 540px;
-      margin-bottom: 60px;
-    }
+  .cta{
+    position:relative;border-radius:24px;overflow:hidden;
+    padding:80px 48px;text-align:center;
+    background:radial-gradient(ellipse at top,rgba(91,106,248,.25),transparent 60%),radial-gradient(ellipse at bottom right,rgba(0,212,255,.2),transparent 60%),#0a0a1a;
+    border:1px solid var(--border-2);
+  }
+  .cta::before{
+    content:"";position:absolute;inset:-50%;
+    background:conic-gradient(from 0deg at 50% 50%,#5b6af8,#00d4ff,#8b5cf6,#5b6af8);
+    opacity:.10;animation:spin 18s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .cta>*{position:relative;z-index:1}
+  .cta h2{font-size:clamp(36px,5vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.05;margin:0 0 18px}
+  .cta p{color:var(--muted);font-size:18px;margin:0 0 32px}
+  .cta-actions{display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center}
 
-    /* GATES GRID */
-    .gates-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .gate-card {
-      background: var(--surface);
-      padding: 28px 24px;
-      transition: background 0.2s;
-    }
-    .gate-card:hover { background: var(--surface2); }
-    .gate-num {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-    .gate-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .gate-desc {
-      font-size: 13px;
-      color: var(--muted2);
-      line-height: 1.5;
-      margin-bottom: 14px;
-    }
-    .gate-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .tag-crit {
-      background: rgba(255,68,68,0.12);
-      color: var(--red);
-      border: 1px solid rgba(255,68,68,0.25);
-    }
-    .tag-block {
-      background: rgba(255,179,0,0.1);
-      color: var(--amber);
-      border: 1px solid rgba(255,179,0,0.2);
-    }
-    .tag-pass {
-      background: rgba(0,230,118,0.08);
-      color: var(--green);
-      border: 1px solid rgba(0,230,118,0.2);
-    }
+  footer{padding:48px 0 64px;border-top:1px solid var(--border);margin-top:120px}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;color:var(--muted);font-size:13.5px}
+  .foot a:hover{color:var(--text)}
+  .foot-links{display:flex;gap:22px}
 
-    /* TERMINAL */
-    .terminal {
-      background: #080810;
-      border: 1px solid var(--border-bright);
-      border-radius: 12px;
-      overflow: hidden;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      margin-top: 60px;
-    }
-    .terminal-bar {
-      background: var(--surface2);
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-    .dot { width: 11px; height: 11px; border-radius: 50%; }
-    .dot-r { background: #ff5f57; }
-    .dot-y { background: #febc2e; }
-    .dot-g { background: #28c840; }
-    .terminal-title { margin-left: 8px; font-size: 12px; color: var(--muted); font-family: var(--font-sans); }
-    .terminal-body { padding: 24px; line-height: 2; }
-    .t-prompt { color: var(--accent-bright); }
-    .t-cmd { color: var(--text); }
-    .t-comment { color: var(--muted); }
-    .t-gate { color: var(--muted2); }
-    .t-pass { color: var(--green); font-weight: 600; }
-    .t-fail { color: var(--red); font-weight: 600; }
-    .t-crit { color: var(--red); }
-    .t-info { color: var(--cyan); }
-    .t-blank { height: 16px; }
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
 
-    /* QUOTE */
-    .quote-block {
-      border-left: 3px solid var(--accent);
-      padding: 24px 32px;
-      background: var(--surface);
-      border-radius: 0 10px 10px 0;
-      margin: 60px 0;
-    }
-    .quote-block p {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.5;
-      font-style: italic;
-    }
-    .quote-source { margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .hamburger{display:none;width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface);align-items:center;justify-content:center}
+  .hamburger span{display:block;width:16px;height:1.5px;background:var(--text);position:relative}
+  .hamburger span::before,.hamburger span::after{content:"";position:absolute;left:0;width:16px;height:1.5px;background:var(--text)}
+  .hamburger span::before{top:-5px}
+  .hamburger span::after{top:5px}
+  #navToggle{display:none}
 
-    /* TABLE */
-    .compare-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
+  @media (max-width:860px){
+    .nav-links{display:none}
+    .hamburger{display:inline-flex}
+    #navToggle:checked ~ .nav-inner .nav-links,
+    .nav-inner:has(#navToggle:checked) .nav-links{
+      display:flex;position:absolute;top:62px;left:0;right:0;flex-direction:column;align-items:flex-start;
+      background:rgba(10,10,26,.96);backdrop-filter:blur(18px);
+      border:1px solid var(--border);border-radius:14px;padding:18px;gap:14px;
     }
-    .compare-table th {
-      text-align: left;
-      padding: 14px 20px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      border-bottom: 1px solid var(--border-bright);
-    }
-    .compare-table td {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      color: var(--muted2);
-      vertical-align: middle;
-    }
-    .compare-table tr:last-child td { border-bottom: none; }
-    .compare-table tr.highlight td { background: rgba(79,110,247,0.05); color: var(--text); }
-    .compare-table td:first-child { font-weight: 600; color: var(--text); }
-    .check { color: var(--green); font-size: 16px; }
-    .cross { color: var(--muted); }
-    .partial { color: var(--amber); }
-
-    /* RUNTIMES */
-    .runtime-chips {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 32px;
-    }
-    .chip {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border: 1px solid var(--border-bright);
-      border-radius: 8px;
-      background: var(--surface);
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .chip-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
-
-    /* INSTALL SECTION */
-    .install-section {
-      text-align: center;
-      padding: 100px 24px;
-      position: relative;
-      overflow: hidden;
-    }
-    .install-section::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 600px;
-      height: 400px;
-      background: radial-gradient(ellipse, rgba(79,110,247,0.12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    /* FOOTER */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 40px 24px;
-      text-align: center;
-    }
-    .footer-inner {
-      max-width: 1080px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .footer-logo { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
-    .footer-links { display: flex; gap: 24px; }
-    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
-    .footer-links a:hover { color: var(--text); }
-    .footer-copy { font-size: 12px; color: var(--muted); }
-
-    /* DIVIDER */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      max-width: 1080px;
-      margin: 0 auto;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      nav { padding: 0 20px; }
-      .nav-links { display: none; }
-      .gates-grid { grid-template-columns: 1fr; }
-      .stats { flex-direction: column; }
-      .stat { border-right: none; border-bottom: 1px solid var(--border); }
-      .stat:last-child { border-bottom: none; }
-      .install-bar { flex-wrap: wrap; }
-      .install-cmd { white-space: normal; word-break: break-all; }
-    }
-    @media (max-width: 480px) {
-      .hero-actions { flex-direction: column; align-items: center; }
-      .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
-    }
-  </style>
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .stat:nth-child(2){border-right:0}
+    .stat:nth-child(1),.stat:nth-child(2){border-bottom:1px solid var(--border)}
+    .gate{grid-template-columns:1fr;gap:0}
+    .gate-num{font-size:64px}
+    .runtimes{grid-template-columns:1fr}
+    .research{grid-template-columns:repeat(2,1fr)}
+    .install{padding:6px 6px 6px 14px;font-size:12.5px}
+    .install code{max-width:42vw}
+    .cta{padding:56px 24px}
+  }
+  @media (max-width:520px){
+    .research{grid-template-columns:1fr}
+    section{padding:80px 0}
+    .hero{padding:56px 0 72px}
+  }
+</style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">product<span>-init</span></a>
-  <div class="nav-links">
-    <a href="#gates">Gates</a>
-    <a href="#compare">Compare</a>
-    <a href="https://github.com/mturac/product-init">Docs</a>
-    <a href="https://github.com/mturac/product-init" class="nav-cta">GitHub →</a>
-  </div>
-</nav>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="badge"><span class="badge-dot"></span>Open Source · Claude Code · Codex · OpenClaw</div>
-
-  <h1>
-    AI sets the goal.<br>
-    <span class="gradient-text">Shoot at the right one.</span>
-  </h1>
-
-  <p class="hero-sub">
-    <strong>43% of startups fail from no market need.</strong> Not bad code.
-    product-init puts 9 hard-gated stages between your idea and your deploy —
-    CRITICAL findings block the pipeline. No <code style="font-family:var(--font-mono);font-size:0.9em;color:var(--red)">--skip</code> flag.
-  </p>
-
-  <div class="hero-actions">
-    <a href="https://github.com/mturac/product-init" class="btn-primary">
-      ★ Star on GitHub
-    </a>
-    <a href="#gates" class="btn-secondary">
-      See the 9 gates →
-    </a>
-  </div>
-
-  <div class="install-bar">
-    <span class="install-prefix">$</span>
-    <span class="install-cmd" id="install-cmd">curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</span>
-    <button class="copy-btn" id="copy-btn" onclick="copyInstall()">Copy</button>
-  </div>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-num blue">9</div>
-      <div class="stat-label">Hard-gated stages</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num red">43%</div>
-      <div class="stat-label">Startups die from no PMF</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num green">0</div>
-      <div class="stat-label">Skip flags. None.</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num cyan">3</div>
-      <div class="stat-label">Runtimes supported</div>
-    </div>
-  </div>
+<div class="fabric" aria-hidden="true">
+  <div class="grid"></div>
+  <div class="orb a"></div>
+  <div class="orb b"></div>
+  <div class="orb c"></div>
 </div>
 
-<!-- GATES -->
-<hr class="divider" />
-<section id="gates">
-  <div class="section-label">The pipeline</div>
-  <h2>9 gates. Every one blocks.</h2>
-  <p class="section-sub">Each gate is a Python audit script with real pass/fail criteria. Gates 1 and 5 are CRITICAL — one CRITICAL finding halts everything.</p>
-
-  <div class="gates-grid">
-    <div class="gate-card">
-      <div class="gate-num">Gate 01</div>
-      <div class="gate-name">Discovery Constitution</div>
-      <div class="gate-desc">JTBD + four-risk model. Who gets fired if this fails? What does failure look like in production?</div>
-      <span class="gate-tag tag-crit">● CRITICAL</span>
-    </div>
-    <div class="gate-card">
-      <div class="gate-num">Gate 02</div>
-      <div class="gate-name">Statement of Work</div>
-      <div class="gate-desc">Shape Up appetite + PR-FAQ. Scope is locked. Deferred list is explicit.</div>
-      <span class="gate-tag tag-block">Blocking</span>
-    </div>
-    <div class="gate-card">
-      <div class="gate-num">Gate 03</div>
-      <div class="gate-name">Design</div>
-      <div class="gate-desc">Every screen maps to a job defined in Gate 1. No orphan screens.</div>
-      <span class="gate-tag tag-block">Blocking</span>
-    </div>
-    <div class="gate-card">
-      <div class="gate-num">Gate 04</div>
-      <div class="gate-name">Build</div>
-      <div class="gate-desc">Commit-to-AC linkage required. No orphan TODOs allowed in shipped code.</div>
-      <span class="gate-tag tag-block">Blocking</span>
-    </div>
-    <div class="gate-card">
-      <div class="gate-num">Gate 05</div>
-      <div class="gate-name">QA</div>
-      <div class="gate-desc">Unit + integration + E2E — all must be green. One red test = full stop.</div>
-      <span class="gate-tag tag-crit">● CRITICAL</span>
-    </div>
-    <div class="gate-card">
-      <div class="gate-num">Gate 06</div>
-      <div class="gate-name">UAT</div>
-      <div class="gate-desc">A real human must sign off on a real URL. No synthetic sign-offs.</div>
-      <span class="gate-tag tag-block">Blocking</span>
-    </div>
-    <div class="gate-card">
-      <div class="gate-num">Gate 07</div>
-      <div class="gate-name">Deploy</div>
-      <div class="gate-desc">HTTP 200 to prod, smoke job passes, rollback drill completed.</div>
-      <span class="gate-tag tag-pass">Pass/Fail</span>
-    </div>
-    <div class="gate-card">
-      <div class="gate-num">Gate 08</div>
-      <div class="gate-name">Handoff</div>
-      <div class="gate-desc">ADRs + runbook + DEBT.md. A contract, not a README.</div>
-      <span class="gate-tag tag-block">Blocking</span>
-    </div>
-    <div class="gate-card">
-      <div class="gate-num">Gate 09</div>
-      <div class="gate-name">Warranty</div>
-      <div class="gate-desc">72-hour monitoring window. Error rate, latency, uptime — all tracked.</div>
-      <span class="gate-tag tag-pass">Pass/Fail</span>
+<header class="nav">
+  <div class="container">
+    <div class="nav-inner">
+      <input type="checkbox" id="navToggle" />
+      <a href="#" class="brand">
+        <span class="brand-mark"></span>
+        <span>product-init</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#gates">Pipeline</a>
+        <a href="#why">Why</a>
+        <a href="#runtimes">Runtimes</a>
+        <a href="#research">Research</a>
+        <a href="https://github.com/mturac/product-init" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn" href="https://demorpoject.vercel.app" target="_blank" rel="noopener">Live demo</a>
+        <a class="btn btn-primary" href="#install">Install <span class="arr">→</span></a>
+        <label for="navToggle" class="hamburger" aria-label="menu"><span></span></label>
+      </div>
     </div>
   </div>
+</header>
 
-  <div class="terminal">
-    <div class="terminal-bar">
-      <div class="dot dot-r"></div>
-      <div class="dot dot-y"></div>
-      <div class="dot dot-g"></div>
-      <span class="terminal-title">product-init — HR assessment tool</span>
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="eyebrow"><span class="dot"></span> 43% of startups fail from no market need — not bad code</div>
+      <h1 class="headline">
+        Ship the right product.<br/>
+        <span class="grad-text">Not just a fast one.</span>
+      </h1>
+      <p class="subhead"><strong>product-init</strong> puts 9 hard gates between your idea and production. CRITICAL findings block the pipeline. No <span class="skip-flag">--skip</span> flag.</p>
+
+      <div id="install" class="install" role="group" aria-label="install command">
+        <span class="prompt">$</span>
+        <code id="installCmd">curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</code>
+        <button class="copy-btn" id="copyBtn" aria-label="Copy install command">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyLabel">Copy</span>
+        </button>
+      </div>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://demorpoject.vercel.app" target="_blank" rel="noopener">See it in action <span class="arr">→</span></a>
+        <a class="ghost-link" href="https://github.com/mturac/product-init" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.05 11.05 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.25 5.7.41.36.78 1.06.78 2.13v3.16c0 .31.21.66.79.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+          View source
+        </a>
+      </div>
+
+      <div class="stats" id="stats">
+        <div class="stat"><div class="num" data-count="9" data-suffix="">0</div><div class="lbl">Hard gates</div></div>
+        <div class="stat"><div class="num" data-count="2" data-suffix=" CRITICAL">0</div><div class="lbl">Pipeline blockers</div></div>
+        <div class="stat"><div class="num" data-count="3" data-suffix="">0</div><div class="lbl">CLI runtimes</div></div>
+        <div class="stat"><div class="num" data-count="0" data-suffix=" --skip">0</div><div class="lbl">Bypass flags</div></div>
+      </div>
     </div>
-    <div class="terminal-body">
-      <div><span class="t-prompt">$</span> <span class="t-cmd">/product-init "build an HR assessment tool"</span></div>
-      <div class="t-blank"></div>
-      <div><span class="t-info">▶ Gate 1</span> <span class="t-gate">Discovery Constitution</span></div>
-      <div>&nbsp;&nbsp;<span class="t-comment"># Who gets fired if this fails?</span></div>
-      <div>&nbsp;&nbsp;<span class="t-comment"># 3 questions. AI drafts the rest.</span></div>
-      <div>&nbsp;&nbsp;<span class="t-pass">✓ JTBD defined</span> <span class="t-gate">— hire on evidence, not gut feel</span></div>
-      <div>&nbsp;&nbsp;<span class="t-pass">✓ Kill criteria set</span> <span class="t-gate">— &lt;60% completion rate → pivot</span></div>
-      <div>&nbsp;&nbsp;<span class="t-pass">✓ Four-risk audit passed</span></div>
-      <div class="t-blank"></div>
-      <div><span class="t-info">▶ Gate 5</span> <span class="t-gate">QA</span></div>
-      <div>&nbsp;&nbsp;<span class="t-pass">✓ 47 unit tests passed</span></div>
-      <div>&nbsp;&nbsp;<span class="t-pass">✓ 12 integration tests passed</span></div>
-      <div>&nbsp;&nbsp;<span class="t-pass">✓ E2E: live interview session green</span></div>
-      <div class="t-blank"></div>
-      <div><span class="t-info">▶ Gate 9</span> <span class="t-gate">Warranty — 72h window</span></div>
-      <div>&nbsp;&nbsp;<span class="t-pass">✓ Error rate 0.02%</span> <span class="t-gate">— p99 latency 210ms</span></div>
-      <div>&nbsp;&nbsp;<span class="t-pass">✓ Uptime 99.98%</span></div>
-      <div class="t-blank"></div>
-      <div><span class="t-pass">✓ 9/9 gates passed.</span> <span class="t-info">Product shipped.</span></div>
+  </section>
+
+  <section id="gates">
+    <div class="container">
+      <div class="reveal">
+        <div class="sec-eyebrow">The Pipeline</div>
+        <h2 class="sec-title">Nine gates between an idea and production.</h2>
+        <p class="sec-sub">Each gate is a real artifact, not a checkbox. Two gates carry CRITICAL severity — when they fail, nothing downstream runs.</p>
+      </div>
+
+      <div class="pipeline">
+        <div class="gate reveal">
+          <div class="gate-num">01</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">Discovery Constitution</div><span class="tag crit">CRITICAL</span></div>
+            <p class="gate-desc">Audience, jobs-to-be-done, four-risk inventory, and kill criteria written down before a single line ships. If the problem isn't real, the pipeline stops here.</p>
+          </div>
+        </div>
+
+        <div class="gate reveal">
+          <div class="gate-num">02</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">Statement of Work</div><span class="tag std">Scope</span></div>
+            <p class="gate-desc">Shape Up–style appetite, fixed boundaries, explicit non-goals. The scope is what gets cut, not what gets added.</p>
+          </div>
+        </div>
+
+        <div class="gate reveal">
+          <div class="gate-num">03</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">Design</div><span class="tag std">Artifact</span></div>
+            <p class="gate-desc">PR-FAQ, flows, and the smallest possible surface that proves the bet. No screens you can't justify against the JTBD.</p>
+          </div>
+        </div>
+
+        <div class="gate reveal">
+          <div class="gate-num">04</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">Build</div><span class="tag std">Implementation</span></div>
+            <p class="gate-desc">Vertical slice with tests-first discipline and architecture decisions captured as ADRs. The code is the easy part now.</p>
+          </div>
+        </div>
+
+        <div class="gate reveal">
+          <div class="gate-num">05</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">QA</div><span class="tag crit">CRITICAL</span></div>
+            <p class="gate-desc">Adversarial review across correctness, security, performance, and accessibility. CRITICAL findings block deploy. No exceptions.</p>
+          </div>
+        </div>
+
+        <div class="gate reveal">
+          <div class="gate-num">06</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">UAT</div><span class="tag std">Validation</span></div>
+            <p class="gate-desc">Real users running the real flow against the success criteria written at Gate 1. Demo theatre doesn't count.</p>
+          </div>
+        </div>
+
+        <div class="gate reveal">
+          <div class="gate-num">07</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">Deploy</div><span class="tag std">Release</span></div>
+            <p class="gate-desc">Reproducible build, rollback path, observability wired in before the URL goes public. Boring on purpose.</p>
+          </div>
+        </div>
+
+        <div class="gate reveal">
+          <div class="gate-num">08</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">Handoff</div><span class="tag std">Operations</span></div>
+            <p class="gate-desc">Runbooks, dashboards, on-call surface area documented. The team that owns it tomorrow is set up to win.</p>
+          </div>
+        </div>
+
+        <div class="gate reveal">
+          <div class="gate-num">09</div>
+          <div class="gate-body">
+            <div class="gate-meta"><div class="gate-name">Warranty</div><span class="tag std">Post-launch</span></div>
+            <p class="gate-desc">A defined window where the original team owns regressions and outcome metrics. The launch isn't the finish line — the metric is.</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- QUOTE -->
-<section style="padding: 0 24px 80px;">
-  <div style="max-width:1080px;margin:0 auto;">
-    <div class="quote-block">
-      <p>"Vibe-coding without a product spec isn't moving fast. It's building the wrong thing at the speed of AI."</p>
-      <div class="quote-source">— The 43% problem · CB Insights 2024</div>
+  <section id="why">
+    <div class="container">
+      <div class="reveal">
+        <div class="sec-eyebrow">Why it matters</div>
+        <h2 class="sec-title">AI made shipping cheap. It didn't make shipping right.</h2>
+        <p class="sec-sub">Most AI scaffolds optimize for velocity. product-init optimizes for being correct about what to build before anything is built.</p>
+      </div>
+      <div class="compare reveal">
+        <table>
+          <thead>
+            <tr><th></th><th>Generic AI scaffold</th><th>product-init</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="label">Discovery before code</td><td><span class="x">×</span></td><td><span class="check">✓</span></td></tr>
+            <tr><td class="label">Hard gates with severity</td><td><span class="x">×</span></td><td><span class="check">✓</span></td></tr>
+            <tr><td class="label">CRITICAL blocks the pipeline</td><td><span class="x">×</span></td><td><span class="check">✓</span></td></tr>
+            <tr><td class="label">PR-FAQ + JTBD artifacts</td><td><span class="x">×</span></td><td><span class="check">✓</span></td></tr>
+            <tr><td class="label">Adversarial QA built in</td><td><span class="x">×</span></td><td><span class="check">✓</span></td></tr>
+            <tr><td class="label">Warranty period after launch</td><td><span class="x">×</span></td><td><span class="check">✓</span></td></tr>
+            <tr><td class="label">No <span class="skip-flag">--skip</span> escape hatch</td><td><span class="x">×</span></td><td><span class="check">✓</span></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- COMPARE -->
-<hr class="divider" />
-<section id="compare">
-  <div class="section-label">Why product-init</div>
-  <h2>Every other tool ships faster.</h2>
-  <p class="section-sub">Only product-init asks whether you should ship at all — before writing the first line of code.</p>
-
-  <table class="compare-table">
-    <thead>
-      <tr>
-        <th>Tool</th>
-        <th>Builds fast</th>
-        <th>PMF validation</th>
-        <th>JTBD framework</th>
-        <th>Blocking audit gates</th>
-        <th>Kill criteria</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>v0 / Bolt / Lovable</td>
-        <td class="check">✓</td>
-        <td class="cross">—</td>
-        <td class="cross">—</td>
-        <td class="cross">—</td>
-        <td class="cross">—</td>
-      </tr>
-      <tr>
-        <td>Cursor / Copilot</td>
-        <td class="check">✓</td>
-        <td class="cross">—</td>
-        <td class="cross">—</td>
-        <td class="cross">—</td>
-        <td class="cross">—</td>
-      </tr>
-      <tr>
-        <td>Devin / SWE-agent</td>
-        <td class="check">✓</td>
-        <td class="cross">—</td>
-        <td class="cross">—</td>
-        <td class="partial">~</td>
-        <td class="cross">—</td>
-      </tr>
-      <tr class="highlight">
-        <td>product-init</td>
-        <td class="check">✓</td>
-        <td class="check">✓</td>
-        <td class="check">✓</td>
-        <td class="check">✓</td>
-        <td class="check">✓</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-
-<!-- RUNTIMES -->
-<hr class="divider" />
-<section>
-  <div class="section-label">Multi-runtime</div>
-  <h2>Works where you work.</h2>
-  <p class="section-sub">One install script. Auto-detects your runtime. If you have all three, installs to all three.</p>
-
-  <div class="runtime-chips">
-    <div class="chip"><span class="chip-dot"></span>Claude Code</div>
-    <div class="chip"><span class="chip-dot"></span>Codex CLI</div>
-    <div class="chip"><span class="chip-dot"></span>OpenClaw + Hermes</div>
-  </div>
-
-  <div class="terminal" style="margin-top:32px;">
-    <div class="terminal-bar">
-      <div class="dot dot-r"></div>
-      <div class="dot dot-y"></div>
-      <div class="dot dot-g"></div>
-      <span class="terminal-title">install.sh — runtime auto-detect</span>
+  <section id="runtimes">
+    <div class="container">
+      <div class="reveal">
+        <div class="sec-eyebrow">Runs everywhere you do</div>
+        <h2 class="sec-title">One skill, three CLI runtimes.</h2>
+        <p class="sec-sub">Install once. Use it from whatever agentic CLI you already trust.</p>
+      </div>
+      <div class="runtimes">
+        <div class="runtime reveal">
+          <h3>Claude Code</h3>
+          <p>Anthropic's official CLI. First-class skill loader.</p>
+          <code>~/.claude/skills/</code>
+        </div>
+        <div class="runtime reveal">
+          <h3>Codex CLI</h3>
+          <p>OpenAI's terminal agent. Skill format mirrored.</p>
+          <code>~/.codex/skills/</code>
+        </div>
+        <div class="runtime reveal">
+          <h3>OpenClaw</h3>
+          <p>Open-source agent runtime. Drop-in compatible.</p>
+          <code>~/.openclaw/skills/</code>
+        </div>
+      </div>
     </div>
-    <div class="terminal-body">
-      <div><span class="t-prompt">$</span> <span class="t-cmd">curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</span></div>
-      <div class="t-blank"></div>
-      <div><span class="t-pass">→ Installing to ~/.claude/skills/product-init ...</span></div>
-      <div><span class="t-pass">→ Installing to ~/.codex/skills/product-init ...</span></div>
-      <div><span class="t-pass">→ Installing to ~/.openclaw/skills/product-init ...</span></div>
-      <div class="t-blank"></div>
-      <div><span class="t-info">product-init ready.</span> <span class="t-gate">Type /product-init in your AI tool to start.</span></div>
+  </section>
+
+  <section id="research">
+    <div class="container">
+      <div class="reveal">
+        <div class="sec-eyebrow">Built on the canon</div>
+        <h2 class="sec-title">Not vibes. Five decades of product literature.</h2>
+        <p class="sec-sub">Each gate is grounded in specific, citable work. No invented frameworks.</p>
+      </div>
+      <div class="research">
+        <div class="citation reveal"><div class="src">CB Insights '24</div><div class="desc">Top reason startups fail: no market need. Gate 1 exists for this stat.</div></div>
+        <div class="citation reveal"><div class="src">Christensen</div><div class="desc">Jobs-to-be-Done framing — what is the customer actually hiring this product to do?</div></div>
+        <div class="citation reveal"><div class="src">Cagan</div><div class="desc">Four risks: value, usability, feasibility, business viability. Mapped to gates 1–4.</div></div>
+        <div class="citation reveal"><div class="src">Basecamp</div><div class="desc">Shape Up appetite-based scoping powers Gate 2's fixed-time/variable-scope contract.</div></div>
+        <div class="citation reveal"><div class="src">Amazon</div><div class="desc">Working-backwards PR-FAQ is the format for Gate 3 design artifacts.</div></div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- FINAL CTA -->
-<div class="install-section">
-  <div class="section-label" style="margin-bottom:16px;">Get started</div>
-  <h2 style="margin-bottom:16px;">One command. Nine gates. Shipped.</h2>
-  <p style="color:var(--muted2);font-size:16px;margin-bottom:40px;max-width:480px;margin-left:auto;margin-right:auto;">
-    Free. Open source. Works on every AI coding runtime.
-  </p>
-  <div class="install-bar" style="margin:0 auto 24px;">
-    <span class="install-prefix">$</span>
-    <span class="install-cmd">curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash</span>
-    <button class="copy-btn" onclick="copyInstall()">Copy</button>
-  </div>
-  <a href="https://github.com/mturac/product-init" class="btn-primary" style="margin-top:8px;">
-    View on GitHub →
-  </a>
-</div>
+  <section>
+    <div class="container">
+      <div class="cta reveal">
+        <h2>Stop shipping fast in the wrong direction.</h2>
+        <p>Install product-init in 30 seconds. Run the first gate in five minutes.</p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="#install">Get the install command <span class="arr">→</span></a>
+          <a class="btn" href="https://github.com/mturac/product-init" target="_blank" rel="noopener">Star on GitHub</a>
+          <a class="btn" href="https://demorpoject.vercel.app" target="_blank" rel="noopener">Live demo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
-<!-- FOOTER -->
 <footer>
-  <div class="footer-inner">
-    <span class="footer-logo">product-init v2.1.0</span>
-    <div class="footer-links">
-      <a href="https://github.com/mturac/product-init">GitHub</a>
-      <a href="https://github.com/mturac/product-init/blob/main/README.md">Docs</a>
-      <a href="https://github.com/mturac/product-init/issues">Issues</a>
+  <div class="container">
+    <div class="foot">
+      <div class="brand"><span class="brand-mark"></span><span>product-init</span></div>
+      <div class="foot-links">
+        <a href="https://github.com/mturac/product-init" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://demorpoject.vercel.app" target="_blank" rel="noopener">Demo</a>
+        <a href="#gates">Pipeline</a>
+        <a href="#research">Research</a>
+      </div>
+      <div>MIT licensed. Built for builders who care about outcomes.</div>
     </div>
-    <span class="footer-copy">MIT License · Built by mturac</span>
   </div>
 </footer>
 
 <script>
-  function copyInstall() {
-    const cmd = 'curl -sSL https://raw.githubusercontent.com/mturac/product-init/main/install.sh | bash';
-    navigator.clipboard.writeText(cmd).then(() => {
-      document.querySelectorAll('.copy-btn').forEach(btn => {
-        btn.textContent = 'Copied!';
+  (function(){
+    var btn = document.getElementById('copyBtn');
+    var cmd = document.getElementById('installCmd');
+    var lbl = document.getElementById('copyLabel');
+    if(!btn||!cmd) return;
+    btn.addEventListener('click', function(){
+      var text = cmd.textContent.trim();
+      var done = function(){
         btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
-      });
+        lbl.textContent = 'Copied';
+        setTimeout(function(){ btn.classList.remove('copied'); lbl.textContent='Copy'; }, 1800);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(function(){
+          var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
+          try{document.execCommand('copy');done();}catch(e){}
+          document.body.removeChild(ta);
+        });
+      } else {
+        var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
+        try{document.execCommand('copy');done();}catch(e){}
+        document.body.removeChild(ta);
+      }
     });
-  }
+  })();
+
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){ els.forEach(function(e){e.classList.add('in')}); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{threshold:.12, rootMargin:'0px 0px -40px 0px'});
+    els.forEach(function(e){ io.observe(e); });
+  })();
+
+  (function(){
+    var nums = document.querySelectorAll('#stats .num');
+    if(!nums.length) return;
+    var animate = function(el){
+      var target = parseFloat(el.getAttribute('data-count')) || 0;
+      var suffix = el.getAttribute('data-suffix') || '';
+      var dur = 1400, start = performance.now();
+      var step = function(t){
+        var p = Math.min((t-start)/dur, 1);
+        var eased = 1 - Math.pow(1-p, 3);
+        el.textContent = Math.round(target*eased) + suffix;
+        if(p<1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    if(!('IntersectionObserver' in window)){ nums.forEach(animate); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ animate(e.target); io.unobserve(e.target); } });
+    },{threshold:.4});
+    nums.forEach(function(n){ io.observe(n); });
+  })();
 </script>
+
 </body>
 </html>
